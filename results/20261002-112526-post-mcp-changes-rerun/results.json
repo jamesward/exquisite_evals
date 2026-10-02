@@ -1,0 +1,147 @@
+[ {
+  "run" : {
+    "task" : "spring-ai-hostedtool",
+    "arm" : "mcp-toolsearch-vector",
+    "answer" : "The **stable‑release** of Spring AI’s OpenAI module ( `org.springframework.ai:spring‑ai‑openai:2.0.1` ) does **not contain** the sealed interface `HostedTool`. The `HostedTool` hierarchy (with variants such as `WebSearch`, `ImageGeneration`, `FileSearch`, `CodeInterpreter`, `Mcp`, and `Raw`) only appears in the **milestone** version `2.1.0‑M1`.\n\nTherefore, in the latest **release** there are no permitted types for `HostedTool`, and consequently there is no type that lets you send a tool definition as raw JSON. To use those `HostedTool` variants—including the `Raw` type (which is the one that accepts a raw JSON definition—you would need to depend on the **milestone** version `2.1.0‑M1` or a later release that incorporates it.",
+    "error" : null,
+    "durationMs" : 38536,
+    "modelCalls" : 19,
+    "inputTokens" : 82011,
+    "outputTokens" : 2874,
+    "overheadInputTokens" : 1182,
+    "overheadOutputTokens" : 0,
+    "toolCalls" : [ {
+      "name" : "search_artifacts",
+      "arguments" : "{\n  \"query\": \"spring ai openai\"\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":[{\\\"groupId\\\":\\\"org.springframework.ai\\\",\\\"artifactId\\\":\\\"spring-ai-openai\\\"},{\\\"groupId\\\":\\\"org.springframework.ai\\\",\\\"artifactId\\\":\\\"spring-ai-autoconfigure-model-openai-sdk\\\"}]}\"}]",
+      "error" : null
+    }, {
+      "name" : "get_latest_version",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"includePreReleases\": false\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":\\\"2.0.1\\\"}\"}]",
+      "error" : null
+    }, {
+      "name" : "list_javadoc_symbols",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"version\": \"2.0.1\",\n  \"filter\": \"HostedTool\"\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":[]}\"}]",
+      "error" : null
+    }, {
+      "name" : "get_javadoc_index",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"version\": \"2.0.1\"\n}",
+      "result" : "[{\"text\":\"---\\nmeta-dc.created: 2026-08-17\\nmeta-description: package index\\nmeta-generator: javadoc/PackageIndexWriter\\nmeta-viewport: width=device-width, initial-scale=1\\ntitle: Overview (Spring AI Model - OpenAI 2.0.1 API)\\n---\\n\\nJavaScript is disabled on your browser.\\n\\n# Spring AI Model - OpenAI 2.0.1 API\\n\\nThis document is the API specification for [Spring AI](https://docs.spring.io/spring-ai/reference)\\n\\nFor further API reference and developer documentation, see the [Spring AI reference documentation](https://docs.spring.io/spring-ai/reference/).\\n That documentation contains more detailed, developer-targeted\\n descriptions, with conceptual overviews, definitions of terms,\\n and working code examples.\\n\\nPackages\\n\\nPackage\\n\\nDescription\\n\\n[org.springframework.ai.openai](org/springframework/ai/openai/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.http.okhttp](org/springframework/ai/openai/http/okhttp/package-summary.html)\\n\\nSpring AI's customized OkHttp-backed implementation of the OpenAi Java SDK's `HttpClient` contract.\\n\\n[org.springframework.ai.openai.metadata](org/springframework/ai/openai/metadata/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.setup](org/springframework/ai/openai/setup/package-summary.html)\\n\\n \\n\\n---\\n\\nCopyright © 2026 [Broadcom Inc.](https://spring.io). All rights reserved.\\n\"}]",
+      "error" : null
+    }, {
+      "name" : "list_javadoc_symbols",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"version\": \"2.0.1\"\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":[{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiAudioSpeechOptions.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiAudioSpeechOptions.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiAudioSpeechModel.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiAudioSpeechModel.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/setup/OpenAiSetup.ModelProvider.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.setup.OpenAiSetup.ModelProvider\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/metadata/OpenAiImageResponseMetadata.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.metadata.OpenAiImageResponseMetadata\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatModel.ResponseFormat.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatModel.ResponseFormat.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/AbstractOpenAiOptions.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.AbstractOpenAiOptions\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatOptions.AudioParameters.Voice.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatOptions.AudioParameters.Voice\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiImageOptions.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiImageOptions.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/http/okhttp/SpringAiOpenAiHttpClient.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.http.okhttp.SpringAiOpenAiHttpClient.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiAudioTranscriptionOptions.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiAudioTranscriptionOptions\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatModel.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatModel\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiEmbeddingOptions.EncodingFormat.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiEmbeddingOptions.EncodingFormat\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/AbstractOpenAiOptions.AbstractBuilder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.AbstractOpenAiOptions.AbstractBuilder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiAudioSpeechModel.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiAudioSpeechModel\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatOptions.StreamOptions.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatOptions.StreamOptions\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiModerationModel.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiModerationModel.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiAudioTranscriptionModel.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiAudioTranscriptionModel.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiAudioSpeechOptions.AudioResponseFormat.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiAudioSpeechOptions.AudioResponseFormat\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/http/okhttp/SpringAiOpenAiHttpClient.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.http.okhttp.SpringAiOpenAiHttpClient\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/http/okhttp/OpenAiHttpClientBuilderCustomizer.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.http.okhttp.OpenAiHttpClientBuilderCustomizer\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiModerationModel.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiModerationModel\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiModerationOptions.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiModerationOptions.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatModel.ResponseFormat.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatModel.ResponseFormat\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/metadata/OpenAiRateLimit.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.metadata.OpenAiRateLimit\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiAudioTranscriptionModel.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiAudioTranscriptionModel\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatOptions.AbstractBuilder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatOptions.AbstractBuilder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/metadata/OpenAiImageGenerationMetadata.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.metadata.OpenAiImageGenerationMetadata\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiModerationOptions.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiModerationOptions\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiEmbeddingModel.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiEmbeddingModel.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatOptions.AudioParameters.AudioResponseFormat.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatOptions.AudioParameters.AudioResponseFormat\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiAudioTranscriptionOptions.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiAudioTranscriptionOptions.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiImageModel.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiImageModel.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatOptions.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatOptions\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatModel.ResponseFormat.Type.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatModel.ResponseFormat.Type\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatModel.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatModel.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiAudioSpeechOptions.Voice.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiAudioSpeechOptions.Voice\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiAudioSpeechOptions.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiAudioSpeechOptions\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiEmbeddingModel.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiEmbeddingModel\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiEmbeddingOptions.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiEmbeddingOptions\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatOptions.AudioParameters.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatOptions.AudioParameters\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatOptions.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatOptions.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/metadata/OpenAiAudioTranscriptionResponseMetadata.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.metadata.OpenAiAudioTranscriptionResponseMetadata\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiImageModel.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiImageModel\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/metadata/OpenAiAudioSpeechResponseMetadata.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.metadata.OpenAiAudioSpeechResponseMetadata\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiEmbeddingOptions.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiEmbeddingOptions.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiChatOptions.StreamOptions.Builder.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiChatOptions.StreamOptions.Builder\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/setup/OpenAiSetup.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.setup.OpenAiSetup\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/OpenAiImageOptions.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.OpenAiImageOptions\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"}]}\"}]",
+      "error" : null
+    }, {
+      "name" : "symbol_to_artifact",
+      "arguments" : "{\n  \"query\": \"HostedTool\"\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":[{\\\"groupId\\\":\\\"org.springframework.ai\\\",\\\"artifactId\\\":\\\"spring-ai-openai\\\"},{\\\"groupId\\\":\\\"com.openai\\\",\\\"artifactId\\\":\\\"openai-java\\\"}]}\"}]",
+      "error" : null
+    }, {
+      "name" : "list_javadoc_symbols",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"version\": \"2.0.1\",\n  \"filter\": \"Hosted\"\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":[]}\"}]",
+      "error" : null
+    }, {
+      "name" : "search_artifacts",
+      "arguments" : "{\n  \"query\": \"HostedTool spring ai\"\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":[]}\"}]",
+      "error" : null
+    }, {
+      "name" : "get_latest_version",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"includePreReleases\": true\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":\\\"2.1.0-M1\\\"}\"}]",
+      "error" : null
+    }, {
+      "name" : "symbol_to_artifact",
+      "arguments" : "{\n  \"query\": \"HostedTool spring ai openai\"\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":[]}\"}]",
+      "error" : null
+    }, {
+      "name" : "search_artifacts",
+      "arguments" : "{\n  \"query\": \"HostedTool\"\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":[]}\"}]",
+      "error" : null
+    }, {
+      "name" : "list_javadoc_symbols",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"version\": \"2.1.0-M1\",\n  \"filter\": \"HostedTool\"\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":[{\\\"link\\\":\\\"org/springframework/ai/openai/responses/HostedTool.WebSearch.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.responses.HostedTool.WebSearch\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/responses/HostedTool.ImageGeneration.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.responses.HostedTool.ImageGeneration\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/responses/HostedTool.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.responses.HostedTool\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/responses/HostedTool.FileSearch.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.responses.HostedTool.FileSearch\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/responses/HostedTool.Raw.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.responses.HostedTool.Raw\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/responses/HostedTool.CodeInterpreter.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.responses.HostedTool.CodeInterpreter\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"},{\\\"link\\\":\\\"org/springframework/ai/openai/responses/HostedTool.Mcp.html\\\",\\\"external\\\":false,\\\"fqn\\\":\\\"org.springframework.ai.openai.responses.HostedTool.Mcp\\\",\\\"type\\\":\\\"\\\",\\\"kind\\\":\\\"\\\",\\\"extra\\\":\\\"\\\"}]}\"}]",
+      "error" : null
+    }, {
+      "name" : "list_javadoc_symbols",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"version\": \"2.0.1\",\n  \"filter\": \"HostedTool\"\n}",
+      "result" : "[{\"text\":\"{\\\"result\\\":[]}\"}]",
+      "error" : null
+    }, {
+      "name" : "get_javadoc_index",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"version\": \"2.1.0-M1\"\n}",
+      "result" : "[{\"text\":\"---\\nmeta-description: package index\\nmeta-generator: javadoc/PackageIndexWriter\\nmeta-viewport: width=device-width, initial-scale=1\\ntitle: Overview (Spring AI Model - OpenAI 2.1.0-M1 API)\\n---\\n\\nJavaScript is disabled on your browser.\\n\\n# Spring AI Model - OpenAI 2.1.0-M1 API\\n\\nThis document is the API specification for [Spring AI](https://docs.spring.io/spring-ai/reference)\\n\\nFor further API reference and developer documentation, see the [Spring AI reference documentation](https://docs.spring.io/spring-ai/reference/).\\n That documentation contains more detailed, developer-targeted\\n descriptions, with conceptual overviews, definitions of terms,\\n and working code examples.\\n\\nPackages\\n\\nPackage\\n\\nDescription\\n\\n[org.springframework.ai.openai](org/springframework/ai/openai/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.http.okhttp](org/springframework/ai/openai/http/okhttp/package-summary.html)\\n\\nSpring AI's customized OkHttp-backed implementation of the OpenAi Java SDK's `HttpClient` contract.\\n\\n[org.springframework.ai.openai.metadata](org/springframework/ai/openai/metadata/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.responses](org/springframework/ai/openai/responses/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.setup](org/springframework/ai/openai/setup/package-summary.html)\\n\\n \\n\\n---\\n\\nCopyright © 2026 [Broadcom Inc.](https://spring.io). All rights reserved.\\n\"}]",
+      "error" : null
+    }, {
+      "name" : "get_javadoc_index",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"version\": \"2.1.0-M1\"\n}",
+      "result" : "[{\"text\":\"---\\nmeta-description: package index\\nmeta-generator: javadoc/PackageIndexWriter\\nmeta-viewport: width=device-width, initial-scale=1\\ntitle: Overview (Spring AI Model - OpenAI 2.1.0-M1 API)\\n---\\n\\nJavaScript is disabled on your browser.\\n\\n# Spring AI Model - OpenAI 2.1.0-M1 API\\n\\nThis document is the API specification for [Spring AI](https://docs.spring.io/spring-ai/reference)\\n\\nFor further API reference and developer documentation, see the [Spring AI reference documentation](https://docs.spring.io/spring-ai/reference/).\\n That documentation contains more detailed, developer-targeted\\n descriptions, with conceptual overviews, definitions of terms,\\n and working code examples.\\n\\nPackages\\n\\nPackage\\n\\nDescription\\n\\n[org.springframework.ai.openai](org/springframework/ai/openai/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.http.okhttp](org/springframework/ai/openai/http/okhttp/package-summary.html)\\n\\nSpring AI's customized OkHttp-backed implementation of the OpenAi Java SDK's `HttpClient` contract.\\n\\n[org.springframework.ai.openai.metadata](org/springframework/ai/openai/metadata/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.responses](org/springframework/ai/openai/responses/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.setup](org/springframework/ai/openai/setup/package-summary.html)\\n\\n \\n\\n---\\n\\nCopyright © 2026 [Broadcom Inc.](https://spring.io). All rights reserved.\\n\"}]",
+      "error" : null
+    }, {
+      "name" : "get_javadoc_index",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"version\": \"2.1.0-M1\"\n}",
+      "result" : "[{\"text\":\"---\\nmeta-description: package index\\nmeta-generator: javadoc/PackageIndexWriter\\nmeta-viewport: width=device-width, initial-scale=1\\ntitle: Overview (Spring AI Model - OpenAI 2.1.0-M1 API)\\n---\\n\\nJavaScript is disabled on your browser.\\n\\n# Spring AI Model - OpenAI 2.1.0-M1 API\\n\\nThis document is the API specification for [Spring AI](https://docs.spring.io/spring-ai/reference)\\n\\nFor further API reference and developer documentation, see the [Spring AI reference documentation](https://docs.spring.io/spring-ai/reference/).\\n That documentation contains more detailed, developer-targeted\\n descriptions, with conceptual overviews, definitions of terms,\\n and working code examples.\\n\\nPackages\\n\\nPackage\\n\\nDescription\\n\\n[org.springframework.ai.openai](org/springframework/ai/openai/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.http.okhttp](org/springframework/ai/openai/http/okhttp/package-summary.html)\\n\\nSpring AI's customized OkHttp-backed implementation of the OpenAi Java SDK's `HttpClient` contract.\\n\\n[org.springframework.ai.openai.metadata](org/springframework/ai/openai/metadata/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.responses](org/springframework/ai/openai/responses/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.setup](org/springframework/ai/openai/setup/package-summary.html)\\n\\n \\n\\n---\\n\\nCopyright © 2026 [Broadcom Inc.](https://spring.io). All rights reserved.\\n\"}]",
+      "error" : null
+    }, {
+      "name" : "get_javadoc_index",
+      "arguments" : "{\n  \"groupId\": \"org.springframework.ai\",\n  \"artifactId\": \"spring-ai-openai\",\n  \"version\": \"2.1.0-M1\"\n}",
+      "result" : "[{\"text\":\"---\\nmeta-description: package index\\nmeta-generator: javadoc/PackageIndexWriter\\nmeta-viewport: width=device-width, initial-scale=1\\ntitle: Overview (Spring AI Model - OpenAI 2.1.0-M1 API)\\n---\\n\\nJavaScript is disabled on your browser.\\n\\n# Spring AI Model - OpenAI 2.1.0-M1 API\\n\\nThis document is the API specification for [Spring AI](https://docs.spring.io/spring-ai/reference)\\n\\nFor further API reference and developer documentation, see the [Spring AI reference documentation](https://docs.spring.io/spring-ai/reference/).\\n That documentation contains more detailed, developer-targeted\\n descriptions, with conceptual overviews, definitions of terms,\\n and working code examples.\\n\\nPackages\\n\\nPackage\\n\\nDescription\\n\\n[org.springframework.ai.openai](org/springframework/ai/openai/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.http.okhttp](org/springframework/ai/openai/http/okhttp/package-summary.html)\\n\\nSpring AI's customized OkHttp-backed implementation of the OpenAi Java SDK's `HttpClient` contract.\\n\\n[org.springframework.ai.openai.metadata](org/springframework/ai/openai/metadata/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.responses](org/springframework/ai/openai/responses/package-summary.html)\\n\\n \\n\\n[org.springframework.ai.openai.setup](org/springframework/ai/openai/setup/package-summary.html)\\n\\n \\n\\n---\\n\\nCopyright © 2026 [Broadcom Inc.](https://spring.io). All rights reserved.\\n\"}]",
+      "error" : null
+    } ],
+    "hostedToolCalls" : 0,
+    "toolsOfferedPerTurn" : [ 1, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+    "wrapUp" : null,
+    "totalTokens" : 86067
+  },
+  "checks" : {
+    "found" : [ "version 2.1.0-M1", "WebSearch", "FileSearch", "CodeInterpreter", "Mcp", "ImageGeneration", "Raw" ],
+    "missing" : [ ],
+    "hallucinatedNames" : [ ],
+    "factScore" : 1.0,
+    "passed" : true
+  },
+  "judges" : [ {
+    "judge" : "llm",
+    "passed" : false,
+    "score" : 0.0,
+    "criteria" : {
+      "factually_consistent" : false,
+      "completeness" : 0,
+      "hallucinations" : [ "claims that the latest release (stable 2.0.1) does not contain HostedTool and thus has no permitted types, contradicting the reference which states the latest release is 2.1.0-M1 and includes six HostedTool records", "fails to list the six permitted types and the Raw type that allows raw JSON" ],
+      "trap_handled" : null,
+      "semantic_pass" : false,
+      "code_checks_pass" : true
+    },
+    "rationale" : "The answer incorrectly identifies the latest release and omits the six HostedTool variants, misrepresenting the API information from the reference.",
+    "inputTokens" : 667,
+    "outputTokens" : 694,
+    "durationMs" : 3822,
+    "error" : null
+  }, {
+    "judge" : "jev",
+    "passed" : false,
+    "score" : 0.48833333333333334,
+    "criteria" : {
+      "grounded" : "FAILED",
+      "completeness" : "PASSED",
+      "required_facts" : "PASSED",
+      "no_invented_names" : "PASSED",
+      "grounded.value" : "0.36",
+      "completeness.value" : "0.62",
+      "semantic_pass" : false
+    },
+    "rationale" : "- grounded: The answer states something expected_output contradicts or does not contain (scored 0.36, needs at least 0.70)",
+    "inputTokens" : 1910,
+    "outputTokens" : 39,
+    "durationMs" : 386,
+    "error" : null
+  } ]
+} ]

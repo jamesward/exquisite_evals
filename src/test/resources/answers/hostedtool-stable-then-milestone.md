@@ -1,0 +1,3 @@
+The **stable‑release** of Spring AI’s OpenAI module ( `org.springframework.ai:spring‑ai‑openai:2.0.1` ) does **not contain** the sealed interface `HostedTool`. The `HostedTool` hierarchy (with variants such as `WebSearch`, `ImageGeneration`, `FileSearch`, `CodeInterpreter`, `Mcp`, and `Raw`) only appears in the **milestone** version `2.1.0‑M1`.
+
+Therefore, in the latest **release** there are no permitted types for `HostedTool`, and consequently there is no type that lets you send a tool definition as raw JSON. To use those `HostedTool` variants—including the `Raw` type (which is the one that accepts a raw JSON definition—you would need to depend on the **milestone** version `2.1.0‑M1` or a later release that incorporates it.

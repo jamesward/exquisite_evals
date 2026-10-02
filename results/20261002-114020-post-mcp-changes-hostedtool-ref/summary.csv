@@ -1,0 +1,7 @@
+task,arm,facts_found,facts_total,invented,budget,run_error,checks_pass,llm_pass,llm_score,jev_pass,jev_score,in_tokens,out_tokens,in_tool_tokens,model_calls,tool_calls,time_s
+spring-ai-hostedtool,base,1,8,0,false,false,false,false,0.00,false,0.17,102,655,0,1,0,11.4
+spring-ai-hostedtool,shell,2,8,0,true,false,false,false,0.08,false,0.05,288063,4081,0,20,19,57.1
+spring-ai-hostedtool,web-brave,7,8,0,false,false,false,false,0.33,false,0.45,101140,2014,3191,13,12,26.7
+spring-ai-hostedtool,mcp,3,8,0,false,false,false,false,0.00,false,0.36,97217,4379,0,28,25,48.8
+spring-ai-hostedtool,mcp-toolsearch,2,8,0,true,false,false,false,0.00,false,0.03,175076,4733,0,31,23,49.6
+spring-ai-hostedtool,mcp-toolsearch-vector,2,8,2,false,false,false,false,0.00,false,0.11,209127,5313,1191,30,26,70.7

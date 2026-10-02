@@ -1,0 +1,5 @@
+task,arm,facts_found,facts_total,invented,budget,run_error,checks_pass,llm_pass,llm_score,jev_pass,jev_score,in_tokens,out_tokens,in_tool_tokens,model_calls,tool_calls,time_s
+jevjudge-gav,mcp-toolsearch-vector,15,15,0,False,False,True,True,1.00,True,0.93,31703,1751,907,8,5,20.9
+jackson3-ptv,mcp-toolsearch-vector,4,10,2,True,False,False,False,0.00,False,0.11,302435,5908,901,20,18,71.9
+spring-ai-hostedtool,mcp-toolsearch-vector,7,7,0,False,False,True,True,1.00,False,0.70,50980,1611,900,10,8,21.7
+agentutils-shell-trap,mcp-toolsearch-vector,5,5,0,True,False,True,True,1.00,True,0.85,270745,4944,913,25,22,65.4
