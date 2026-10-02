@@ -22,6 +22,8 @@ dependencies {
     // JevJudge + auto-configured TypeSafeClient
     implementation("org.springaicommunity:spring-ai-starter-typesafe:0.3.0")
     implementation("org.springaicommunity:typesafe-spring-ai:0.3.0")
+    // Maven's version ordering, for ReferenceFreshness (plexus-utils is only needed by classes we don't use)
+    implementation("org.apache.maven:maven-artifact:3.9.16") { exclude(group = "org.codehaus.plexus", module = "plexus-utils") }
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

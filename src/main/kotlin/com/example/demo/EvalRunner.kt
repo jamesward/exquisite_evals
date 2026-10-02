@@ -66,6 +66,10 @@ class EvalRunner(
 
     fun run(tasks: List<EvalTask>, arms: List<Arm>): List<EvalResult> {
         log.info("Running {} task(s) x {} arm(s): tasks={} arms={} models={}", tasks.size, arms.size, tasks.map { it.id }, arms.map { it.id }, models)
+        // Warn, don't fail: a stale reference makes a correct agent look wrong, which is worth knowing up front.
+        runCatching { ReferenceFreshness.check(tasks) }
+            .onSuccess { stale -> stale.forEach { log.warn("STALE REFERENCE: {}", it) } }
+            .onFailure { log.warn("Could not check reference freshness against Maven Central: {}", it.message) }
         val results = tasks.flatMap { task ->
             arms.map { arm ->
                 val record = execute(task, arm)

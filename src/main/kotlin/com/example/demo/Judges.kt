@@ -131,6 +131,14 @@ class LlmJudge(private val judgeClient: ChatClient.Builder) : EvalJudge {
  */
 class JevAsJudge(private val client: TypeSafeClient) : EvalJudge {
 
+    companion object {
+        /**
+         * Pass bar for the `grounded` noul. Was 0.7 until 2026-10-02: correct answers that added detail the
+         * reference doesn't mention scored 0.52-0.68 and failed, while the LLM judge passed them.
+         */
+        const val GROUNDED_MIN = 0.6
+    }
+
     override val name = "jev"
     private val log = LoggerFactory.getLogger(JevAsJudge::class.java)
 
@@ -159,7 +167,7 @@ class JevAsJudge(private val client: TypeSafeClient) : EvalJudge {
 
     fun judgeFor(task: EvalTask, checks: CodeCheckResult): JevJudge {
         val b = JevJudge.builder(client)
-            .noul("grounded", grounded, 0.7)
+            .noul("grounded", grounded, GROUNDED_MIN)
             .score("completeness", completeness, 2.0)
             .check("required_facts", { checks.missing.isEmpty() }, "missing required facts: ${checks.missing}")
             .check("no_invented_names", { checks.hallucinatedNames.isEmpty() }, "invented names: ${checks.hallucinatedNames}")

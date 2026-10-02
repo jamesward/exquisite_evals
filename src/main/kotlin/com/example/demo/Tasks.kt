@@ -34,6 +34,8 @@ data class EvalTask(
     val names: List<NameFamily> = emptyList(),
     /** The question asks about something that does not exist; the right answer says so. */
     val trap: Boolean = false,
+    /** Versions the reference depends on; [ReferenceFreshness] reports when Maven Central has moved past them. */
+    val pinnedVersions: List<PinnedVersion> = emptyList(),
 )
 
 object TaskCatalog {
@@ -86,6 +88,7 @@ object TaskCatalog {
             Fact.regex("default minConfidence 0.6", "\\b0\\.60?\\b"),
         ) + JEV_BUILDER_METHODS.map(Fact::member),
         names = listOf(JEV_TYPES),
+        pinnedVersions = listOf(PinnedVersion("org.springaicommunity", "typesafe-spring-ai", "0.3.0")),
     )
 
     val JACKSON3_PTV = EvalTask(
@@ -129,6 +132,10 @@ object TaskCatalog {
             Regex("\\b(?:allow|deny)[A-Z]\\w*"),
             setOf("allowIfBaseType", "allowIfSubType", "allowIfSubTypeIsArray", "allowSubTypesWithExplicitDeserializer", "denyForExactBaseType"),
         )),
+        pinnedVersions = listOf(
+            PinnedVersion("tools.jackson.core", "jackson-databind", "3.2.3"),
+            PinnedVersion("com.fasterxml.jackson.core", "jackson-databind", "2.22.3"),
+        ),
     )
 
     val SPRING_AI_HOSTED_TOOL = EvalTask(
@@ -164,6 +171,7 @@ object TaskCatalog {
             Regex("(?<=HostedTool\\.)[A-Z]\\w*"),
             setOf("WebSearch", "FileSearch", "CodeInterpreter", "Mcp", "ImageGeneration", "Raw"),
         )),
+        pinnedVersions = listOf(PinnedVersion("org.springframework.ai", "spring-ai-openai", "2.0.1", latestAny = "2.1.0-M1")),
     )
 
     val AGENT_UTILS_SHELL_TRAP = EvalTask(
@@ -195,6 +203,10 @@ object TaskCatalog {
         ),
         names = listOf(JEV_TYPES),
         trap = true,
+        pinnedVersions = listOf(
+            PinnedVersion("org.springaicommunity", "spring-ai-agent-utils", "0.12.0"),
+            PinnedVersion("org.springaicommunity", "typesafe-spring-ai", "0.3.0"),
+        ),
     )
 
     val all: List<EvalTask> = listOf(JEVJUDGE_GAV, JACKSON3_PTV, SPRING_AI_HOSTED_TOOL, AGENT_UTILS_SHELL_TRAP)

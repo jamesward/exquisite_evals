@@ -102,4 +102,35 @@ class TokenTrackingAdvisorTest {
             .call().content()
         assertTrue(sink.size >= 3 && sink.all { it.result == "[\"echo\"]" }, "every search ran, none got the limit error: $sink")
     }
+
+    @Test fun `a truncated tool-call argument gets an error result and no longer breaks the next request`() {
+        val requests = mutableListOf<Prompt>()
+        // Like Kimi on Bedrock: first a tool call cut off mid-JSON, then a final answer. Like Bedrock, the model
+        // rejects any request whose history holds tool-call arguments that aren't valid JSON.
+        val model = object : ChatModel {
+            override fun getOptions() = ToolCallingChatOptions.builder().build()
+            override fun call(prompt: Prompt): ChatResponse {
+                requests += prompt
+                val bad = prompt.instructions.filterIsInstance<AssistantMessage>().flatMap { it.toolCalls }
+                    .filterNot { ToolCallArguments.isValid(it.arguments()) }
+                check(bad.isEmpty()) { "400: Unterminated string starting at: line 1 column 13" }
+                val msg = if (requests.size == 1)
+                    AssistantMessage.builder().content("").toolCalls(listOf(AssistantMessage.ToolCall("c1", "function", "echo", "{\"command\": \"curl -s https://repo1"))).build()
+                else AssistantMessage("final answer")
+                return ChatResponse(listOf(Generation(msg)), ChatResponseMetadata.builder().usage(DefaultUsage(10, 1)).build())
+            }
+        }
+        val (answer, _) = run(model, RunBudget(maxToolCalls = 5, maxModelCalls = 5))
+        assertEquals("final answer", answer)
+        val toolResult = requests.last().instructions.last().toString() // a tool response's content lives in its parts
+        val replayed = requests.last().instructions.filterIsInstance<AssistantMessage>().single().toolCalls.single()
+        assertTrue(toolResult.contains("not valid JSON") && toolResult.contains("echo"), "tool result: $toolResult / ${requests.last().instructions}")
+        assertEquals("{}", replayed.arguments(), "the unparseable arguments were replaced before replay")
+        assertTrue(sink.isEmpty(), "the tool itself never ran on broken arguments")
+    }
+
+    @Test fun `argument validity`() {
+        assertTrue(ToolCallArguments.isValid("{\"a\": 1}") && ToolCallArguments.isValid("") && ToolCallArguments.isValid(null))
+        assertTrue(!ToolCallArguments.isValid("{\"command\": \"curl") && !ToolCallArguments.isValid("{"))
+    }
 }

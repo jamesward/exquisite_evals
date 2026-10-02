@@ -61,10 +61,18 @@ class TokenTrackingAdvisor(private val tracker: TokenTracker, private val budget
     override fun getOrder(): Int = Ordered.LOWEST_PRECEDENCE - 1
 
     override fun before(chatClientRequest: ChatClientRequest, advisorChain: AdvisorChain): ChatClientRequest {
-        val request = budget?.let { enforce(it, chatClientRequest) } ?: chatClientRequest
+        val request = budget?.let { enforce(it, repairToolCalls(chatClientRequest)) } ?: chatClientRequest
         val options = request.prompt().options as? ToolCallingChatOptions
         tracker.toolsOfferedPerTurn += options?.toolCallbacks?.map { it.toolDefinition.name() }.orEmpty()
         return request
+    }
+
+    /** Replace tool-call arguments that aren't valid JSON, which Bedrock would reject on replay (see [ToolCallArguments]). */
+    private fun repairToolCalls(request: ChatClientRequest): ChatClientRequest {
+        val messages = request.prompt().instructions
+        val repaired = ToolCallArguments.repair(messages)
+        if (repaired.indices.all { repaired[it] === messages[it] }) return request
+        return request.mutate().prompt(request.prompt().mutate().messages(repaired).build()).build()
     }
 
     /**

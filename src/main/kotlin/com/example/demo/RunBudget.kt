@@ -75,7 +75,9 @@ class CappedToolCallback(
     override fun getToolMetadata(): org.springframework.ai.tool.metadata.ToolMetadata = delegate.toolMetadata
     override fun call(toolInput: String): String = call(toolInput, null)
     override fun call(toolInput: String, toolContext: ToolContext?): String =
-        if (used.incrementAndGet() > maxCalls)
+        if (!ToolCallArguments.isValid(toolInput))
+            ToolCallArguments.invalidArgumentsError(delegate.toolDefinition.name(), toolInput)
+        else if (used.incrementAndGet() > maxCalls)
             "Error: the tool-call budget for this task ($maxCalls calls) is used up. Do not call more tools; " +
                 "answer with what you have already found."
         else if (toolContext != null) delegate.call(toolInput, toolContext) else delegate.call(toolInput)
