@@ -99,7 +99,7 @@ exist. Only the tools differ.
 | Arm | Tools | Enabled when |
 |---|---|---|
 | `base` | none: the model's built-in knowledge only | always |
-| `shell` | `Bash` + `TodoWrite` from [spring-ai-agent-utils](https://github.com/spring-ai-community/spring-ai-agent-utils), so it can curl, download, unzip and grep jars like a coding assistant | always |
+| `shell` | `Bash` + `TodoWrite` from [spring-ai-agent-utils](https://github.com/spring-ai-community/spring-ai-agent-utils), so it can curl, download, unzip and grep jars like a coding assistant. Commands run in a Docker sandbox (see [Running](#running)) | always |
 | `web-brave` | Brave `WebSearch` + `WebFetch` (which summarizes each page with the agent model) + shell | `BRAVE_API_KEY` set |
 | `web-bedrock` | Bedrock's server-side `web_search` (`external_web_access=false`) + shell | `BEDROCK_WEB_SEARCH_MODEL` set to a GPT‑5.x model your account can use |
 | `mcp` | the [javadocs.dev](https://www.javadocs.dev/mcp) MCP tools, all offered up front | always |
@@ -128,6 +128,14 @@ Setup:
 1. [Create a Bedrock API key](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/api-keys/long-term/create) and `export AWS_BEARER_TOKEN_BEDROCK=...`
 2. `export TYPESAFE_API_KEY=...` for the Jev judge.
 3. Optional: `export BRAVE_API_KEY=...` for `web-brave`, and `export BEDROCK_WEB_SEARCH_MODEL=openai.gpt-5.6-terra` for `web-bedrock`.
+4. Build the shell sandbox image (needs Docker): `docker build -t exquisite-evals-sandbox:1 sandbox`
+
+The `shell` and web arms run the model's commands in a fresh container per run (`DockerCliExecBackend` from
+`spring-ai-agent-utils-docker-cli`), built from `sandbox/Dockerfile`: a JDK plus `curl`, `unzip`, `jq`, `git` and
+`python3`, running as a non-root user. Only the run's scratch directory is mounted, at `/workspace`, and none of the
+host's environment is passed in, so the commands can't read the API keys. The network is open, since the agent has
+to reach Maven Central. `EVALS_SANDBOX=local` runs commands on the host instead (with only `PATH` and `HOME` from its
+environment); all runs before 2026-10-02 13:50 ran on the host with its full environment.
 
 Run (needs Java 21+):
 
@@ -175,6 +183,7 @@ Tests:
 - `./gradlew build` runs offline: no network, no cost.
 - `./gradlew test -Plive --tests '*SpikeTest*'` runs live checks of each building block.
 - `./gradlew test -Plive --tests '*ReferenceFreshness*'` checks the reference answers are still current.
+- `./gradlew test -Plive --tests '*SandboxLiveTest*'` checks the sandbox: tools present, network up, no host keys or files, container removed.
 
 ## Judges
 
@@ -235,6 +244,7 @@ List prices on 2026-09-30, per 1M tokens:
 | `Embeddings.kt` | Cohere Embed v3 on the Bedrock runtime (document vs query input types, token accounting) |
 | `Judges.kt` | `LlmJudge` and `JevAsJudge` (both include the code checks) |
 | `RunBudget.kt` | Tool-call cap, recovery from garbled tool names, handling of unknown tools |
+| `Sandboxes.kt` | The per-run Docker container the shell arms' commands run in (`sandbox/Dockerfile`) |
 | `ToolCallArguments.kt` | Error results for, and history repair of, tool calls with unparseable JSON arguments |
 | `TokenTracking.kt` | Per-turn token and tool accounting; forces the wrap-up answer when the budget is used up |
 | `EvalRunner.kt` | Runs the task × arm matrix, calls both judges, writes the report |
@@ -247,8 +257,9 @@ List prices on 2026-09-30, per 1M tokens:
   arms use. The facts came from the published artifacts, not from how javadocs.dev renders them.
 - `web-bedrock` hasn't been measured: this account can't use the GPT‑5.x models it needs. The arm is ready and turns
   on when `BEDROCK_WEB_SEARCH_MODEL` is set.
-- **The shell tool runs model-written commands directly on the host and inherits its environment,** including the API
-  keys above. Use the agent-utils Docker backend (`spring-ai-agent-utils-docker-cli`) for real isolation.
+- **Shell-arm results before 2026-10-02 13:50 ran on the host,** with its environment and tools; later runs use the
+  Docker sandbox, so shell-arm numbers across that change aren't strictly comparable. The sandbox isolates files
+  and secrets, not the network.
 
 ## Appendix: gpt-oss-120b runs
 

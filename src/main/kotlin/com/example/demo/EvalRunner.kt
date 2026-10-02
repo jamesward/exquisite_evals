@@ -89,7 +89,7 @@ class EvalRunner(
     fun execute(task: EvalTask, arm: Arm): RunRecord {
         val sessionId = "${task.id}-${arm.id}-${System.nanoTime()}"
         val workDir = Files.createTempDirectory("eval-${arm.id}-")
-        val run = ArmRun(sessionId, workDir)
+        val run = ArmRun(sessionId, workDir)  // closed below: removes the run's sandbox container, if any
         val tracker = TokenTracker("${task.id}/${arm.id}")
         val start = System.nanoTime()
         val (answer, error) = try {
@@ -109,6 +109,7 @@ class EvalRunner(
             log.warn("[{}/{}] run failed: {}", task.id, arm.id, msg)
             null to msg
         } finally {
+            run.close()
             workDir.toFile().deleteRecursively()
         }
         return RunRecord(

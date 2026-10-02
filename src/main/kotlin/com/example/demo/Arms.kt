@@ -28,7 +28,19 @@ data class EvalProperties(
     val bedrockWebSearch: BedrockWebSearch = BedrockWebSearch(),
     /** Embedding model for the mcp-toolsearch-vector arm (Bedrock runtime; mantle has no embedding models). */
     val embedding: Embedding = Embedding(),
+    /** Where the shell arms run model-written commands. */
+    val sandbox: Sandbox = Sandbox(),
 ) {
+    /**
+     * [mode] `docker` (default) runs commands in a fresh container from [image] per run, with only the run's
+     * scratch directory mounted and none of the host's environment (so no API keys); `local` runs them on the
+     * host, inheriting its environment, as the runs before 2026-10-02 did.
+     */
+    data class Sandbox(
+        val mode: String = "docker",
+        val image: String = "exquisite-evals-sandbox:1",
+    )
+
     data class Embedding(
         val model: String = "cohere.embed-english-v3",
         val baseUrl: String = "https://bedrock-runtime.us-east-1.amazonaws.com",
@@ -48,7 +60,16 @@ class ArmRun(
     val toolCalls: MutableList<RecordedToolCall> = LoggingToolCallback.newSink(),
     /** Model calls made inside tools (e.g. WebFetch page summaries) — invisible to the agent's tracker. */
     val overhead: TokenTracker = TokenTracker("$sessionId (in-tool)"),
-)
+) : AutoCloseable {
+    private val resources = mutableListOf<AutoCloseable>()
+
+    /** Registers something to release when the run ends (e.g. its sandbox container). */
+    fun <T : AutoCloseable> own(resource: T): T = resource.also { resources += it }
+
+    override fun close() {
+        resources.asReversed().forEach { runCatching { it.close() } }
+    }
+}
 
 /**
  * One experimental condition. Every arm shares the agent model and system prompt; they differ only in
@@ -136,8 +157,17 @@ class ArmCatalog(
         })
 
     private fun shellAndTodo(run: ArmRun): List<ToolCallback> {
-        // LocalExecBackend defaults to /bin/bash, absent on NixOS: resolve bash from PATH.
-        val backend = LocalExecBackend.builder().workingDirectory(run.workDir).shellCommand("/usr/bin/env", "bash", "-c").build()
+        val backend = when (props.sandbox.mode) {
+            "local" ->
+                // On the host, but without the JVM's environment (API keys): only PATH and HOME are passed through.
+                // LocalExecBackend defaults to /bin/bash, absent on NixOS: resolve bash from PATH.
+                LocalExecBackend.builder().workingDirectory(run.workDir).shellCommand("/usr/bin/env", "bash", "-c")
+                    .cleanEnvironment(true)
+                    .environment(listOf("PATH", "HOME").mapNotNull { k -> System.getenv(k)?.let { k to it } }.toMap())
+                    .build()
+            "docker" -> run.own(Sandboxes.docker(props.sandbox.image, run.workDir))
+            else -> error("evals.sandbox.mode must be docker or local, was '${props.sandbox.mode}'")
+        }
         return ToolCallbacks.from(ShellTools.builder().execBackend(backend).build(), TodoWriteTool.builder().build()).toList()
     }
 

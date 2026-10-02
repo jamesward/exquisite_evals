@@ -257,7 +257,9 @@ Agents can loop forever, so each run gets a budget and still ends with a gradabl
 | Input tokens | 250,000 | Same (every turn re-sends the whole history) |
 | Hard stop | model calls + 3 | The run is recorded as an error |
 
-Garbled or unknown tool names are resolved or answered with an error instead of crashing the run.
+Garbled or unknown tool names, and cut-off JSON arguments, are answered with an error instead of crashing the run.
+
+Shell commands run in a **Docker sandbox** (one container per run, only `/workspace` mounted, no host env, so no API keys).
 
 ---
 
