@@ -28,6 +28,10 @@ data class RunRecord(
     val toolsOfferedPerTurn: List<Int>,
     /** Set when the budget forced a tool-free final answer. */
     val wrapUp: String? = null,
+    /** Input tokens of each model call, in order (each turn re-sends the history, so this shows where tokens go). */
+    val inputTokensPerTurn: List<Int> = emptyList(),
+    /** Every `toolSearchTool` call on the tool-search arms: the model's query and the tool names it got back. */
+    val toolSearches: List<ToolSearchCall> = emptyList(),
 ) {
     val totalTokens get() = inputTokens + outputTokens + overheadInputTokens + overheadOutputTokens
 }
@@ -117,6 +121,7 @@ class EvalRunner(
             tracker.modelCalls, tracker.promptTokens, tracker.completionTokens,
             run.overhead.promptTokens, run.overhead.completionTokens,
             run.toolCalls.toList(), tracker.hostedToolCalls.size, tracker.toolsOfferedPerTurn.map { it.size }, tracker.wrapUpReason,
+            tracker.promptTokensPerTurn.toList(), tracker.toolSearches.toList(),
         )
     }
 }

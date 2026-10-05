@@ -6,10 +6,15 @@ import org.springframework.ai.chat.client.ChatClientResponse
 import org.springframework.ai.chat.client.advisor.api.AdvisorChain
 import org.springframework.ai.chat.client.advisor.api.BaseAdvisor
 import org.springframework.ai.chat.model.ChatResponse
+import org.springframework.ai.chat.messages.AssistantMessage
+import org.springframework.ai.chat.messages.ToolResponseMessage
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.model.tool.ToolCallingChatOptions
 import org.springframework.core.Ordered
+
+/** A `toolSearchTool` call: the model's search arguments and the raw result (a JSON list of tool names). */
+data class ToolSearchCall(val turn: Int, val arguments: String, val result: String)
 
 /** Mutable accumulator of token usage and per-turn tool exposure across (potentially many) model calls. */
 class TokenTracker(val label: String) {
@@ -31,6 +36,22 @@ class TokenTracker(val label: String) {
 
     val totalTokens: Int get() = promptTokens + completionTokens
 
+    /** Prompt tokens of each model call, in order. */
+    val promptTokensPerTurn: MutableList<Int> = mutableListOf()
+
+    /** `toolSearchTool` calls, read back from the history (the advisor runs them itself, outside our tool wrappers). */
+    val toolSearches: MutableList<ToolSearchCall> = mutableListOf()
+    private val seenToolSearchIds = mutableSetOf<String>()
+
+    /** Records `toolSearchTool` calls that appear in [messages] and haven't been seen yet. */
+    fun recordToolSearches(messages: List<org.springframework.ai.chat.messages.Message>) {
+        val calls = messages.filterIsInstance<AssistantMessage>().flatMap { it.toolCalls }
+            .filter { it.name() == RunToolCalling.TOOL_SEARCH_TOOL }.associateBy { it.id() }
+        messages.filterIsInstance<ToolResponseMessage>().flatMap { it.responses }
+            .filter { it.name() == RunToolCalling.TOOL_SEARCH_TOOL && seenToolSearchIds.add(it.id()) }
+            .forEach { toolSearches += ToolSearchCall(modelCalls, calls[it.id()]?.arguments() ?: "?", it.responseData()) }
+    }
+
     /** An embedding call: input tokens only. */
     @Synchronized
     fun recordEmbedding(inputTokens: Int) {
@@ -42,6 +63,7 @@ class TokenTracker(val label: String) {
         val usage = response?.metadata?.usage ?: return
         modelCalls++
         promptTokens += usage.promptTokens
+        promptTokensPerTurn += usage.promptTokens
         completionTokens += usage.completionTokens
     }
 
@@ -63,6 +85,7 @@ class TokenTrackingAdvisor(private val tracker: TokenTracker, private val budget
     override fun before(chatClientRequest: ChatClientRequest, advisorChain: AdvisorChain): ChatClientRequest {
         val request = budget?.let { enforce(it, repairToolCalls(chatClientRequest)) } ?: chatClientRequest
         val options = request.prompt().options as? ToolCallingChatOptions
+        tracker.recordToolSearches(request.prompt().instructions)
         tracker.toolsOfferedPerTurn += options?.toolCallbacks?.map { it.toolDefinition.name() }.orEmpty()
         return request
     }

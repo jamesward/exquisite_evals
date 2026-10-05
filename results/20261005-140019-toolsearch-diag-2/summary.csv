@@ -1,0 +1,13 @@
+task,arm,facts_found,facts_total,invented,budget,run_error,checks_pass,llm_pass,llm_score,jev_pass,jev_score,in_tokens,out_tokens,in_tool_tokens,model_calls,tool_calls,time_s
+jevjudge-gav,mcp,15,15,0,false,false,true,true,1.00,true,0.90,24973,593,0,6,6,13.8
+jevjudge-gav,mcp-toolsearch,15,15,0,false,false,true,true,1.00,true,0.92,24865,689,0,7,7,14.1
+jevjudge-gav,mcp-toolsearch-vector,14,15,0,false,false,false,false,0.25,false,0.35,38738,962,1177,11,9,24.0
+jackson3-ptv,mcp,9,10,0,false,false,false,false,1.00,false,0.76,27138,1132,0,5,7,15.9
+jackson3-ptv,mcp-toolsearch,9,10,0,false,false,false,false,1.00,false,0.83,27307,1201,0,7,7,18.2
+jackson3-ptv,mcp-toolsearch-vector,9,10,0,false,false,false,false,1.00,false,0.93,25690,896,1184,6,7,17.3
+spring-ai-hostedtool,mcp,8,8,0,false,false,true,true,1.00,false,0.77,209159,1417,0,20,19,39.1
+spring-ai-hostedtool,mcp-toolsearch,8,8,0,true,false,true,true,1.00,true,0.80,289167,1156,0,14,11,33.4
+spring-ai-hostedtool,mcp-toolsearch-vector,2,8,0,true,false,false,false,0.00,false,0.36,301638,1558,1184,26,23,119.5
+agentutils-shell-trap,mcp,5,5,0,false,false,true,true,1.00,true,0.83,17742,717,0,5,8,22.2
+agentutils-shell-trap,mcp-toolsearch,5,5,0,false,false,true,false,0.38,false,0.54,32113,1340,0,10,13,25.3
+agentutils-shell-trap,mcp-toolsearch-vector,5,5,0,false,false,true,true,1.00,true,0.83,42992,1148,1218,9,13,28.8
