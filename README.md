@@ -19,32 +19,36 @@ The evals were also used to improve the [javadocs.dev](https://www.javadocs.dev/
 
 ## Current results
 
-Agent `moonshotai.kimi-k2.5`, LLM judge `deepseek.v3.2`, against the current javadocs.dev, 2026-10-02
-(`results/20261002-125459-kimi-k2.5-judge-deepseek-v3.2`). One trial per task × arm, so treat single cells as
-indicative only.
+Agent `moonshotai.kimi-k2.5`, LLM judge `deepseek.v3.2`, against the current javadocs.dev, 2026-10-05
+(`results/20261005-110328-kimi-k2.5-judge-deepseek-v3.2-sandbox`), with the shell arms in the Docker sandbox. One
+trial per task × arm, so treat single cells as indicative only.
 
 | Arm | Code checks pass | LLM judge pass | Jev pass | Total tokens | Avg time |
 |---|---|---|---|---|---|
-| base | 0/4 | 0/4 | 0/4 | 3k | 6 s |
-| shell | 0/4 | 0/4 | 0/4 | 798k | 307 s |
-| web-brave | 1/4 | 1/4 | 0/4 | 842k | 68 s |
-| **mcp** | **3/4** | **2/4** | **2/4** | 484k | 27 s |
-| mcp-toolsearch | 2/4 | 2/4 | 2/4 | 184k | 16 s |
-| mcp-toolsearch-vector | 2/4 | 2/4 | 1/4 | 440k | 45 s |
+| base | 0/4 | 0/4 | 0/4 | 4k | 11 s |
+| shell | 1/4 | 1/4 | 1/4 | 679k | 213 s |
+| web-brave | 0/4 | 0/4 | 0/4 | 729k | 51 s |
+| **mcp** | **2/4** | **2/4** | **2/4** | 380k | 26 s |
+| mcp-toolsearch | 1/4 | 1/4 | 1/4 | 463k | 38 s |
+| **mcp-toolsearch-vector** | **2/4** | **2/4** | **2/4** | 554k | 61 s |
 
-- **The javadocs.dev MCP arms are the only ones that pass tasks reliably.** All three solved `jevjudge-gav`, and
-  `mcp` passed `jackson3-ptv` (10/10 facts, both judges), the first pass of that task by any arm.
-- **The base model makes things up confidently,** and shell and web access cost hundreds of thousands of tokens
-  while staying mostly wrong.
-- **`spring-ai-hostedtool` is the hardest task.** `HostedTool` exists only in the 2.1.0-M1 milestone, and most
-  agents stop at "not in the latest release (2.0.1)" instead of asking for pre-releases.
-- **The judges catch what the code checks can't.** On `agentutils-shell-trap/mcp`, Kimi stated every required fact
-  but said child processes *don't* inherit the environment (they do). The code checks passed it; both judges failed it.
-- **The judges agreed on 22 of 24 answers.** Jev took 6.5 s for all 24, the LLM judge 82 s.
+- **All three javadocs.dev MCP arms solved `jevjudge-gav` again** (15/15 facts, both judges), and `mcp` and
+  `mcp-toolsearch-vector` solved `agentutils-shell-trap`. No other arm solved either.
+- **On `jackson3-ptv`, all three MCP arms got 9 of 10 facts.** Each found the API diff and the 3.1.4 / 2.18.8 change
+  but never wrote the `tools.jackson.core` groupId, which the code checks require even though the question doesn't
+  ask for coordinates. On `mcp`, the LLM judge found nothing wrong and Jev scored it 0.68 grounded, so the groupId fact
+  alone failed it.
+- **`spring-ai-hostedtool` was solved only by `shell`,** now in the Docker sandbox: it pulled the 2.1.0-M1 sources.
+  All three MCP arms stopped at "not in the latest release, 2.0.1" without asking for pre-releases.
+- **The base model makes things up confidently,** and the web arm stayed wrong on every task for 729k tokens.
+- **The judges agreed on all 24 answers** (Jev's `grounded` bar is now 0.6), and no run errored: the tool-call repair
+  caught two cut-off `WebSearch` calls that would previously have ended the run with a Bedrock 400.
 
-These verdicts used Jev's earlier `grounded` pass bar of 0.7; it is 0.6 from 2026-10-02 (see [Judges](#judges)).
-Compared with `gpt-oss-120b` on the same javadocs.dev, Kimi used about 30–50% fewer tokens on the MCP arms in about
-half the time ([`results/COMPARISON-models-20261002.md`](results/COMPARISON-models-20261002.md)).
+Compared with the 2026-10-02 Kimi run ([`results/COMPARISON-kimi-20261005.md`](results/COMPARISON-kimi-20261005.md)),
+the per-arm totals moved by one task in most arms, in both directions, which is about the size of run-to-run
+variance here; several trials per cell are needed to call any of it a change. With `gpt-oss-120b` on the same
+javadocs.dev, Kimi used fewer tokens on the MCP arms in about half the time
+([`results/COMPARISON-models-20261002.md`](results/COMPARISON-models-20261002.md)).
 
 ## How evals improved javadocs.dev
 
@@ -200,6 +204,7 @@ Both judges fail an answer that fails the code checks, so their verdicts are com
 | Baseline, 20 answers | `gpt-oss-120b` | 5 / 2 | 17/20 | 122 s / 5.8 s | 11.4k / 875 |
 | Post-change, 24 answers | `gpt-oss-120b` | 4 / 3 | 23/24 | 96 s / 7.2 s | 13.8k / 1.1k |
 | Kimi run, 24 answers | `deepseek.v3.2` | 7 / 5 | 22/24 | 82 s / 6.5 s | 3.0k / 1.1k |
+| Kimi run, sandbox, Jev bar 0.6, 24 answers | `deepseek.v3.2` | 6 / 6 | 24/24 | 67 s / 6.8 s | 3.1k / 1.1k |
 
 - **Both judges catch hallucinations.** Every answer with invented APIs or wrong versions failed both. The LLM judge
   lists the specific wrong claims ("Incorrect Maven coordinates: …typesafe-java-sdk:0.3.0"); Jev's feedback is built
