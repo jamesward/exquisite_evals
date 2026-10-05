@@ -23,7 +23,7 @@ data class NameFamily(val description: String, val pattern: Regex, val accepted:
 
 /**
  * One eval task. [reference] is the frozen, verified answer the judges grade against; it was checked
- * against the published javadoc jars on 2026-09-30 and must be re-verified when "latest" moves.
+ * against the published javadoc jars on 2026-09-30 (versions re-verified 2026-10-05) and must be re-verified when "latest" moves.
  */
 data class EvalTask(
     val id: String,
@@ -41,7 +41,7 @@ data class EvalTask(
 object TaskCatalog {
 
     private val JEV_TYPES = NameFamily(
-        "Jev* types in typesafe-spring-ai 0.3.0",
+        "Jev* types in typesafe-spring-ai 0.4.0",
         Regex("\\bJev[A-Z]\\w*"),
         setOf(
             "JevJudge", "JevVerdict", "JevFinding", "JevCriterion", "JevJudgeInput", "JevEvaluator",
@@ -63,7 +63,7 @@ object TaskCatalog {
             "(groupId:artifactId:version, at the latest version), list every method of its Builder with its " +
             "parameter types, and state the default value of minConfidence.",
         reference = """
-            Coordinates: org.springaicommunity:typesafe-spring-ai:0.3.0 (the Java class is
+            Coordinates: org.springaicommunity:typesafe-spring-ai:0.4.0 (the Java class is
             org.springaicommunity.typesafe.judge.JevJudge; com.jamesward:zio-evals_3 also has a JevJudge, but it
             is a Scala object with no Builder).
             JevJudge.Builder methods:
@@ -84,11 +84,11 @@ object TaskCatalog {
         facts = listOf(
             Fact.literal("groupId", "org.springaicommunity"),
             Fact.literal("artifactId", "typesafe-spring-ai"),
-            Fact.regex("version 0.3.0", "\\b0\\.3\\.0\\b"),
+            Fact.regex("version 0.4.0", "\\b0\\.4\\.0\\b"),
             Fact.regex("default minConfidence 0.6", "\\b0\\.60?\\b"),
         ) + JEV_BUILDER_METHODS.map(Fact::member),
         names = listOf(JEV_TYPES),
-        pinnedVersions = listOf(PinnedVersion("org.springaicommunity", "typesafe-spring-ai", "0.3.0")),
+        pinnedVersions = listOf(PinnedVersion("org.springaicommunity", "typesafe-spring-ai", "0.4.0")),
     )
 
     val JACKSON3_PTV = EvalTask(
@@ -181,18 +181,18 @@ object TaskCatalog {
             "Linux, how do you override it, and do child processes inherit the JVM's environment by default? " +
             "Also, how do I use JevJudge.Builder.rubric() from typesafe-spring-ai?",
         reference = """
-            Latest org.springaicommunity:spring-ai-agent-utils is 0.12.0. LocalExecBackend
+            Latest org.springaicommunity:spring-ai-agent-utils is 0.13.0. LocalExecBackend
             (org.springaicommunity.agent.exec.LocalExecBackend) runs commands with /bin/bash -c on Linux (cmd.exe /c on
             Windows). Override it with LocalExecBackend.builder().shellCommand(String... shellCommand).
             Child processes inherit the JVM's environment by default: cleanEnvironment defaults to false; set
             cleanEnvironment(true) to start from an empty environment (recommended for model-authored commands), and
             environment(Map) to add variables.
-            JevJudge.Builder has no rubric() method (typesafe-spring-ai 0.3.0). Its methods are noul, score, choice, check,
+            JevJudge.Builder has no rubric() method (typesafe-spring-ai 0.4.0). Its methods are noul, score, choice, check,
             criterion, minConfidence, failOnInconclusive, failOnError, failFast, feedbackRenderer and build; a rubric is
             expressed as several criteria (noul/score/choice) rather than one rubric call.
         """.trimIndent(),
         facts = listOf(
-            Fact.regex("version 0.12.0", "\\b0\\.12\\.0\\b"),
+            Fact.regex("version 0.13.0", "\\b0\\.13\\.0\\b"),
             Fact.literal("default shell /bin/bash", "/bin/bash"),
             Fact.member("shellCommand"),
             Fact.regex("cleanEnvironment", "\\bcleanEnvironment\\b"),
@@ -204,8 +204,8 @@ object TaskCatalog {
         names = listOf(JEV_TYPES),
         trap = true,
         pinnedVersions = listOf(
-            PinnedVersion("org.springaicommunity", "spring-ai-agent-utils", "0.12.0"),
-            PinnedVersion("org.springaicommunity", "typesafe-spring-ai", "0.3.0"),
+            PinnedVersion("org.springaicommunity", "spring-ai-agent-utils", "0.13.0"),
+            PinnedVersion("org.springaicommunity", "typesafe-spring-ai", "0.4.0"),
         ),
     )
 

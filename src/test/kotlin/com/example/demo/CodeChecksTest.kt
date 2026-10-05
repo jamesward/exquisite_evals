@@ -26,7 +26,7 @@ class CodeChecksTest {
         val r = CodeChecks.evaluate(TaskCatalog.JEVJUDGE_GAV,
             "org.springaicommunity:typesafe-spring-ai. Use JevRubricScorer via `noul()` and `score()`.")
         assertEquals(listOf("JevRubricScorer"), r.hallucinatedNames)
-        assertTrue("version 0.3.0" in r.missing && "check" in r.missing, r.toString())
+        assertTrue("version 0.4.0" in r.missing && "check" in r.missing, r.toString())
         assertTrue(!r.passed)
     }
 
@@ -53,7 +53,7 @@ class CodeChecksTest {
     }
 
     @Test fun `trap - describing rubric() fails, saying it does not exist passes`() {
-        val base = "spring-ai-agent-utils 0.12.0 uses /bin/bash -c; override with `shellCommand(...)`; cleanEnvironment defaults to false. "
+        val base = "spring-ai-agent-utils 0.13.0 uses /bin/bash -c; override with `shellCommand(...)`; cleanEnvironment defaults to false. "
         val fooled = CodeChecks.evaluate(TaskCatalog.AGENT_UTILS_SHELL_TRAP, base + "Call rubric(\"quality\", 0.8) on the builder.")
         assertTrue("says rubric() does not exist" in fooled.missing, fooled.toString())
         listOf("JevJudge.Builder has no rubric() method.", "There is no rubric() method.", "rubric() does not exist in 0.3.0.",
