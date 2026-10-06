@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 RUN = Path(sys.argv[1] if len(sys.argv) > 1 else
-           Path(__file__).parent.parent / "results/20261005-110328-kimi-k2.5-judge-deepseek-v3.2-sandbox")
+           Path(__file__).parent.parent / "results/20261006-075758-pre-mcp-changes-clean")
 ARMS = ["base", "shell", "web-brave", "mcp"]
 TASKS = ["jevjudge-gav", "jackson3-ptv", "spring-ai-hostedtool", "agentutils-shell-trap"]
 LAYERS = [("checks", "Code checks", "facts found"), ("llm", "LLM judge", "DeepSeek V3.2"), ("jev", "Jev", "TypeSafe")]

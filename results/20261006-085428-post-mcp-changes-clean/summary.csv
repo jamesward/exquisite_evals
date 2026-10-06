@@ -1,0 +1,17 @@
+task,arm,facts_found,facts_total,invented,budget,run_error,checks_pass,llm_pass,llm_score,jev_pass,jev_score,in_tokens,out_tokens,in_tool_tokens,model_calls,tool_calls,time_s
+jevjudge-gav,base,0,15,0,false,false,false,false,0.67,false,0.07,172,293,0,1,0,4.2
+jevjudge-gav,shell,1,15,0,true,false,false,false,0.00,false,0.07,273338,1994,0,25,25,491.6
+jevjudge-gav,web-brave,14,15,0,false,false,false,false,0.25,false,0.33,88100,919,20004,10,9,35.3
+jevjudge-gav,mcp,15,15,0,false,false,true,true,1.00,true,0.84,25335,837,0,6,6,14.2
+jackson3-ptv,base,4,10,0,false,false,false,false,0.00,false,0.23,179,1288,0,1,0,10.4
+jackson3-ptv,shell,4,10,0,false,false,false,false,0.08,false,0.19,166913,2866,0,22,25,82.9
+jackson3-ptv,web-brave,7,10,0,false,false,false,false,0.25,false,0.62,135678,2215,29156,11,19,60.4
+jackson3-ptv,mcp,8,10,0,false,false,false,false,0.17,false,0.58,108223,1262,0,10,11,26.7
+spring-ai-hostedtool,base,2,8,0,false,false,false,false,0.08,false,0.17,155,537,0,1,0,5.3
+spring-ai-hostedtool,shell,6,8,0,false,false,false,false,0.17,false,0.33,148443,2211,0,25,24,98.3
+spring-ai-hostedtool,web-brave,6,8,0,false,false,false,false,0.17,false,0.36,162960,1317,73369,20,19,67.7
+spring-ai-hostedtool,mcp,2,8,0,true,false,false,false,0.00,false,0.30,405348,1784,0,22,21,122.0
+agentutils-shell-trap,base,1,5,0,false,false,false,false,0.00,false,0.34,180,536,0,1,0,6.9
+agentutils-shell-trap,shell,0,5,0,false,false,false,false,0.00,false,0.32,146713,1669,0,9,19,372.7
+agentutils-shell-trap,web-brave,4,5,0,false,false,false,false,0.38,false,0.57,218093,1907,19419,14,22,69.2
+agentutils-shell-trap,mcp,5,5,0,false,false,true,true,1.00,false,0.74,20689,756,0,6,12,15.0

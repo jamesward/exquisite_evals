@@ -26,13 +26,12 @@ Christian Tzolov - Spring AI Lead @ Broadcom & AAIF Ambassador
 
 ![bg right:50% contain](3d-evals.svg)
 
-**Tests for non-deterministic systems**
+**Tests for outputs of non-deterministic systems**
 
-1. **System to test**
-2. **Task**
-3. **Arm**
-4. **Judge**
-5. **Metrics**
+1. **Task** What we are simulating
+1. **Arm** Configuration of system to test
+1. **Judge** How we determine success
+1. **Metrics** How to measure accuracy & efficiency
 
 ---
 
@@ -165,7 +164,9 @@ Reference answers were checked against the published javadoc and sources jars.
 
 ## Four arms, one model
 
-Same model (`gpt-oss-120b`, later `kimi-k2.5`, on Amazon Bedrock), same coding-assistant system prompt. Only the tools differ.
+Same model (`kimi-k2.5` on Amazon Bedrock), same coding-assistant system prompt. Only the tools differ.
+
+Judged by code checks, an LLM judge (`deepseek-v3.2`, a different model family) and Jev.
 
 | Arm | Tools |
 |---|---|
@@ -176,31 +177,31 @@ Same model (`gpt-oss-120b`, later `kimi-k2.5`, on Amazon Bedrock), same coding-a
 
 ---
 
-## Baseline results
+## Baseline: javadocs.dev before the changes
 
 | Arm | Code checks | LLM judge | Jev | Total tokens | Avg time |
 |---|---|---|---|---|---|
-| base | 0/4 | 0/4 | 0/4 | 10k | 28 s |
-| shell | 0/4 | 0/4 | 0/4 | 643k | 52 s |
-| web-brave | 1/4 | 1/4 | 0/4 | 903k | 75 s |
-| **mcp** | **3/4** | **3/4** | **2/4** | 664k | 43 s |
+| base | 0/4 | 0/4 | 0/4 | 4k | 13 s |
+| shell | 1/4 | 1/4 | 1/4 | 812k | 318 s |
+| web-brave | 0/4 | 0/4 | 0/4 | 735k | 71 s |
+| **mcp** | **3/4** | **3/4** | **3/4** | 254k | 19 s |
 
-- The base model is fluent and wrong: invented coordinates, 18 Jackson methods, a `rubric()` API
-- Shell and web burned hundreds of thousands of tokens and were still mostly wrong
-- No arm solved Jackson 3
+- The base model pretends to search ("`<tool>web_search</tool>`") and invents the results: `com.github.h-thurow:jev:0.3.0`
+- Shell and web used 735k–812k tokens. Shell concluded `JevJudge` and `spring-ai-agent-utils` don't exist; web invented an `AGENT_SHELL_COMMAND` variable
+- `mcp` was right 3 times out of 4 with a third of the tokens, in seconds
 
-<span class="small">One trial per task × arm, so indicative only. *Measured in a separate run.</span>
+<span class="small">One trial per task × arm, so indicative only.</span>
 
 ---
 
-## Reading the transcripts: where agents went wrong
+## Reading the transcripts: where `mcp` still went wrong
 
-The scores say *that* the javadocs.dev arms failed; the tool calls say *why*.
+The scores say *that* an arm failed; the tool calls say *why*.
 
-- `search_artifacts("jackson-databind 3.0.0")` → `[]`: a version in the query never matched. One run called `search_artifacts` **27 times**.
-- `symbol_to_artifact("jevjudge")` → `[]`: the symbol index was case-sensitive.
-- `list_javadoc_symbols` lists every class (hundreds for jackson-databind), and the Jackson runs used **250k+ input tokens**.
-- Embedding search ranked `symbol_to_artifact` only **4th** for "which Maven artifact contains this Java class?"
+- `get_latest_version(spring-ai-openai)` → `2.1.0-M1`. The agent reported the milestone as "the" version and never said it isn't a release: **the only task `mcp` failed**
+- `list_javadoc_symbols(jackson-databind)` returned **155k + 134k characters** of class lists: one turn sent **76k input tokens**, and Jackson alone used 143k of `mcp`'s 254k tokens
+- `search_artifacts("JevJudge")`, `("judge")`, `("jev")` → `[]`, after `symbol_to_artifact` had already found it
+- The same server, called directly: `search_artifacts("jackson-databind 3.0.0")` → `[]`, `symbol_to_artifact("jevjudge")` → `[]`
 
 ---
 
@@ -230,17 +231,53 @@ Agents trust "latest", so a wrong latest sends them to the wrong API. It also af
 
 ---
 
-## Then: swap the model
+## After: same evals, updated javadocs.dev
 
-Same tasks, same javadocs.dev. Agent `gpt-oss-120b` → `kimi-k2.5`; LLM judge → `deepseek-v3.2`, a different family from the agent.
+| Arm | Code checks | LLM judge | Jev | Total tokens | Avg time |
+|---|---|---|---|---|---|
+| base | 0/4 → 0/4 | 0/4 → 0/4 | 0/4 → 0/4 | 4k → 3k | 13 → 7 s |
+| shell | 1/4 → 0/4 | 1/4 → 0/4 | 1/4 → 0/4 | 812k → 744k | 318 → 261 s |
+| web-brave | 0/4 → 0/4 | 0/4 → 0/4 | 0/4 → 0/4 | 735k → 753k | 71 → 58 s |
+| **mcp** | **3/4 → 2/4** | **3/4 → 2/4** | **3/4 → 1/4** | **254k → 564k** | **19 → 44 s** |
 
-| Arm | Code checks | Jev | Total tokens | Avg time |
-|---|---|---|---|---|
-| mcp | 2/4 → 3/4 | 2/4 → 2/4 | 688k → 484k | 62 → 27 s |
-| shell | 0/4 → 0/4 | 0/4 → 0/4 | 905k → 798k | 126 → 307 s |
+**The aggregate did not improve in this one trial.** One MCP task consumed 407k tokens; the control arms moved too.
 
-- First pass on `jackson3-ptv` (Kimi + `mcp`). The MCP arms used fewer tokens and took about half the time
-- The judges caught a wrong claim ("child processes don't inherit the environment") that passed the code checks
+<span class="small">Same tasks, Kimi K2.5, DeepSeek V3.2 + Jev, Docker sandbox and budgets. Before → after.</span>
+
+---
+
+## Did the server changes help?
+
+**Mechanically, yes. On this trial's score, no.**
+
+| `mcp` task | Before | After | What happened |
+|---|---|---|---|
+| `jevjudge-gav` | 15/15 PPP · 39k | 15/15 PPP · **26k** | `filter="JevJudge"`; 9 → 6 calls |
+| `jackson3-ptv` | 10/10 PPP · 144k | 8/10 ... · **109k** | largest turn **76k → 26k**; final answer omitted two facts |
+| `hostedtool` | 7/8 ... · 23k | 2/8 ... · **407k** | stable 2.0.1 correct; never opted into pre-releases; hit budget |
+| `shell-trap` | 5/5 PPP · 46k | 5/5 PP. · **21k** | evidence correct; Jev alone failed it at grounded=0.48 |
+
+- On the other three MCP tasks, input tokens fell **32%** (228k → 155k)
+- The filtered tools supplied the evidence; Jackson's failure was in the final answer
+- One trial cannot separate a system change from model and judge variance
+
+---
+
+## `HostedTool`: five more trials
+
+| Trial | Facts | Code / LLM / Jev | Tokens | What happened |
+|---|---:|---|---:|---|
+| 1 | 1/8 | ... | 312k | opted into pre-releases on the wrong artifact |
+| **2 · best** | **8/8** | **PP.** | **217k** | found 2.1.0-M1, read its source; Jev grounded=0.59 |
+| 3 | 2/8 | ... | 242k | found 2.1.0-M1 on tool call 25; did not inspect it |
+| 4 | 2/8 | ... | 335k | never opted into pre-releases |
+| 5 | 6/8 | ... | 459k | never opted into pre-releases |
+
+**New server: completion 1/5.** The capability works when the agent chooses it; usually, it doesn't.
+
+**Old server repeat: 7/8 · 24k · 5 calls** — almost identical to baseline; failed only "milestone" wording.
+
+<span class="small">Best-of-5 shows the successful path; it does not replace the matched aggregate. Trial 2 passed code + DeepSeek; Jev missed 0.60 by 0.01.</span>
 
 ---
 
@@ -252,7 +289,7 @@ Bugs we found in the eval harness itself:
 - The LLM judge gave an **empty answer** a score of 0.67 ("nothing wrong was said")
 - `2.1.0‑M1` written with a non-breaking hyphen failed a code check
 - A trap check missed "does not contain a `rubric()` method"
-- gpt-oss leaked `<|channel|>` markers into tool names, which crashed runs
+- Models leaked `<|channel|>` markers into tool names, or cut off tool-call JSON, which crashed runs
 - Agents looped until stopped, so we added a per-run budget
 - `./gradlew clean` deleted the baseline results, so results now live in `results/`
 
@@ -260,76 +297,26 @@ Read the transcripts, and check the checks.
 
 ---
 
-## Architecture
+## Eval Review with Spring AI Inspector
 
-```text
- Tasks.kt (prompt, reference, facts)      Arms.kt (ArmCatalog: tools + tool-calling advisor)
-                     \                      /
-                      v                    v
-                    EvalRunner: every task x every enabled arm
-                              |
-                              v
-   ChatClient  (Spring AI 2.1.0-M1, OpenAiResponsesChatModel, gpt-oss-120b on Bedrock mantle)
-     |- tools for the arm: none | Bash | Brave + WebFetch | javadocs.dev MCP client
-     |- ToolCallingAdvisor | ToolSearchToolCallingAdvisor (Lucene | Cohere vectors)
-     '- TokenTrackingAdvisor: tokens + tools per turn, run budget
-                              |
-                              v
-        RunRecord: answer, every tool call, tokens (incl. in-tool), model calls, time
-                              |
-              +---------------+----------------+
-              v               v                v
-          CodeChecks       LlmJudge        JevAsJudge
-              +---------------+----------------+
-                              v
-      results/<timestamp>-<label>/  report.md · results.json · summary.csv  -->  compare.py
-```
+![w:1150](spring_ai_inspector.png)
 
 ---
 
-## One run, with a budget
+## Judges compared (baseline, 16 answers)
 
-Agents can loop forever, so each run gets a budget and still ends with a gradable answer:
-
-| Limit | Default | When reached |
+| | LLM judge (`deepseek-v3.2`) | Jev |
 |---|---|---|
-| Tool calls | 25 | Further calls return an error to the model |
-| Model calls | 30 | Tools removed; the model is told to answer with what it found |
-| Input tokens | 250,000 | Same (every turn re-sends the whole history) |
-| Hard stop | model calls + 3 | The run is recorded as an error |
+| Passed | 4/16 | 4/16 |
+| Same verdict | 16/16 | 16/16 |
+| Total time | 42 s | 5.4 s |
+| Output tokens | 1,931 | 700 |
+| Cost | $0.015 | $0.0017 |
 
-Garbled or unknown tool names, and cut-off JSON arguments, are answered with an error instead of crashing the run.
+- The judges agreed on every answer; Jev was **8× faster and 9× cheaper**
+- The LLM judge explains its verdicts, but misses things: it scored two failing answers 1.00, one "properly noting the 2.1.0-M1 milestone" when it never said "milestone". The code checks caught both
 
-Shell commands run in a **Docker sandbox** (one container per run, only `/workspace` mounted, no host env, so no API keys).
-
----
-
-## Three graders, one verdict
-
-**Code checks**: required facts (regex), invented names (e.g. any `Jev*` type that doesn't exist), trap phrasing
-
-**LLM judge** (`gpt-oss-120b`, later `deepseek-v3.2`): a JSON verdict with `factually_consistent`, `completeness` 0–4, `hallucinations[]`, `trap_handled`
-
-**Jev judge** (`JevJudge`, one call):
-- `grounded` noul ≥ 0.7 · `completeness` score ≥ 2 · `trap_handled` noul ≥ 0.7
-- the code checks added as local criteria, never sent to Jev
-
-Both judges fail an answer that fails the code checks, so their verdicts are comparable.
-
----
-
-## Judges compared (baseline, 20 answers)
-
-| | LLM judge (gpt-oss-120b) | Jev |
-|---|---|---|
-| Passed | 5/20 | 2/20 |
-| Same verdict | 17/20 | 17/20 |
-| Total time | 122 s | 5.8 s |
-| Cost | $0.0108 | $0.0021 |
-
-- Jev is stricter on `grounded`: it failed three correct answers that added extra detail (0.52–0.65, bar 0.7)
-- The LLM judge is lenient on empty answers
-- Jev doesn't charge for output tokens, and input costs $0.042 vs $0.15 per 1M tokens
+<span class="small">List prices per 1M tokens: DeepSeek V3.2 on Bedrock $0.62 in / $1.85 out; Jev $0.042 in, output not billed.</span>
 
 ---
 
@@ -349,4 +336,5 @@ Both judges fail an answer that fails the code checks, so their verdicts are com
 - Spring AI 2.1 reference: https://docs.spring.io/spring-ai/reference/2.1/
 - spring-ai-agent-utils: https://github.com/spring-ai-community/spring-ai-agent-utils
 - spring-ai-typesafe (JevJudge): https://github.com/spring-ai-community/spring-ai-typesafe
+- Spring AI Inspector: https://github.com/tzolov/voxxeddays2026-demo
 - Preso & Code: https://github.com/jamesward/exquisite_evals

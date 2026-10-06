@@ -1,0 +1,6 @@
+{
+  "agent" : "moonshotai.kimi-k2.5",
+  "agentApi" : "chat-completions",
+  "llmJudge" : "deepseek.v3.2",
+  "jevJudge" : "TypeSafe Jev (client default)"
+}

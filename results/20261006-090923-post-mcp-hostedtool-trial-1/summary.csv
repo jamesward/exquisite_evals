@@ -1,0 +1,2 @@
+task,arm,facts_found,facts_total,invented,budget,run_error,checks_pass,llm_pass,llm_score,jev_pass,jev_score,in_tokens,out_tokens,in_tool_tokens,model_calls,tool_calls,time_s
+spring-ai-hostedtool,mcp,1,8,0,true,false,false,false,0.00,false,0.34,310970,1332,0,18,17,94.8

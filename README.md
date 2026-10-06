@@ -17,53 +17,101 @@ time, and the judges on their verdicts, cost and agreement.
 The evals were also used to improve the [javadocs.dev](https://www.javadocs.dev/mcp) MCP server; see
 [How evals improved javadocs.dev](#how-evals-improved-javadocsdev).
 
-## Current results
+## Results
 
-Agent `moonshotai.kimi-k2.5`, LLM judge `deepseek.v3.2`, against the current javadocs.dev, 2026-10-05
-(`results/20261005-110328-kimi-k2.5-judge-deepseek-v3.2-sandbox`), with the shell arms in the Docker sandbox. One
-trial per task × arm, so treat single cells as indicative only.
+Agent `moonshotai.kimi-k2.5` on Amazon Bedrock, LLM judge `deepseek.v3.2`, Jev, shell arms in the Docker sandbox.
+One trial per task × arm, so treat single cells as indicative only.
 
-| Arm | Code checks pass | LLM judge pass | Jev pass | Total tokens | Avg time |
-|---|---|---|---|---|---|
-| base | 0/4 | 0/4 | 0/4 | 4k | 11 s |
-| shell | 1/4 | 1/4 | 1/4 | 679k | 213 s |
-| web-brave | 0/4 | 0/4 | 0/4 | 729k | 51 s |
-| **mcp** | **2/4** | **2/4** | **2/4** | 380k | 26 s |
-| mcp-toolsearch | 1/4 | 1/4 | 1/4 | 463k | 38 s |
-| **mcp-toolsearch-vector** | **2/4** | **2/4** | **2/4** | 554k | 61 s |
+### Baseline: javadocs.dev before the changes (2026-10-06)
 
-- **All three javadocs.dev MCP arms solved `jevjudge-gav` again** (15/15 facts, both judges), and `mcp` and
-  `mcp-toolsearch-vector` solved `agentutils-shell-trap`. No other arm solved either.
-- **On `jackson3-ptv`, all three MCP arms got 9 of 10 facts.** Each found the API diff and the 3.1.4 / 2.18.8 change
-  but never wrote the `tools.jackson.core` groupId, which the code checks require even though the question doesn't
-  ask for coordinates. On `mcp`, the LLM judge found nothing wrong and Jev scored it 0.68 grounded, so the groupId fact
-  alone failed it.
-- **`spring-ai-hostedtool` was solved only by `shell`,** now in the Docker sandbox: it pulled the 2.1.0-M1 sources.
-  All three MCP arms stopped at "not in the latest release, 2.0.1" without asking for pre-releases.
-- **The base model makes things up confidently,** and the web arm stayed wrong on every task for 729k tokens.
-- **The judges agreed on all 24 answers** (Jev's `grounded` bar is now 0.6), and no run errored: the tool-call repair
-  caught two cut-off `WebSearch` calls that would previously have ended the run with a Bedrock 400.
+`results/20261006-075758-pre-mcp-changes-clean`, against the javadocs.dev MCP server as it was before the changes
+described [below](#how-evals-improved-javadocsdev).
 
-Compared with the 2026-10-02 Kimi run ([`results/COMPARISON-kimi-20261005.md`](results/COMPARISON-kimi-20261005.md)),
-the per-arm totals moved by one task in most arms, in both directions, which is about the size of run-to-run
-variance here; several trials per cell are needed to call any of it a change. With `gpt-oss-120b` on the same
-javadocs.dev, Kimi used fewer tokens on the MCP arms in about half the time
-([`results/COMPARISON-models-20261002.md`](results/COMPARISON-models-20261002.md)).
+| Arm | Code checks pass | LLM judge pass | Jev pass | Total tokens | Model calls | Tool calls | Avg time |
+|---|---|---|---|---|---|---|---|
+| base | 0/4 | 0/4 | 0/4 | 4k | 4 | 0 | 13 s |
+| shell | 1/4 | 1/4 | 1/4 | 812k | 87 | 100 | 318 s |
+| web-brave | 0/4 | 0/4 | 0/4 | 735k | 49 | 73 | 71 s |
+| **mcp** | **3/4** | **3/4** | **3/4** | 254k | 27 | 31 | 19 s |
+
+Per task: facts found, then pass (P) or fail (.) for code checks / LLM judge / Jev, then total tokens.
+
+| Task | base | shell | web-brave | mcp |
+|---|---|---|---|---|
+| jevjudge-gav | 1/15 ... 0k | 0/15 ... 243k | 14/15 ... 141k | **15/15 PPP 39k** |
+| jackson3-ptv | 3/10 ... 1k | 6/10 ... 232k | 9/10 ... 264k | **10/10 PPP 144k** |
+| spring-ai-hostedtool | 2/8 ... 1k | **8/8 PPP 200k** | 6/8 ... 113k | 7/8 ... 23k |
+| agentutils-shell-trap | 0/5 ... 1k | 1/5 ... 135k | 1/5 ... 215k | **5/5 PPP 46k** |
+
+- **`mcp` solved 3 of 4 tasks with a third of the tokens** of the shell and web arms, in 19 s per task on average.
+- **The base model pretends to use tools.** It writes `<tool>web_search</tool>` into its answer, then invents the
+  "results": `com.github.h-thurow:jev:0.3.0`, `withMinConfidence(double)`, and a `HostedTool` that doesn't exist.
+- **Shell and web spent 735k–812k tokens and stayed mostly wrong.** Shell concluded that `JevJudge` and
+  `spring-ai-agent-utils` don't exist; web invented an `AGENT_SHELL_COMMAND` variable for overriding the shell. Shell
+  solved `spring-ai-hostedtool` by downloading the 2.1.0-M1 sources and calling it a milestone.
+- **`mcp` failed `spring-ai-hostedtool` on "latest".** The server's `get_latest_version` returned the milestone
+  `2.1.0-M1`, and the answer gave it as the version without saying it isn't a release.
+- **The judges agreed on all 16 answers,** and no run errored.
+
+### After: javadocs.dev with the changes (2026-10-06)
+
+`results/20261006-085428-post-mcp-changes-clean`, the same tasks, arms, models, sandbox and budgets. Both runs used
+`-Pinspector`. A direct preflight verified all four server changes; the run transcript shows filtered symbol lookups,
+release-only latest and calls with the new `includePreReleases` parameter.
+
+| Arm | Code checks pass | LLM judge pass | Jev pass | Total tokens | Model calls | Tool calls | Avg time |
+|---|---|---|---|---|---|---|---|
+| base | 0/4 | 0/4 | 0/4 | 3k | 4 | 0 | 7 s |
+| shell | 0/4 | 0/4 | 0/4 | 744k | 81 | 93 | 261 s |
+| web-brave | 0/4 | 0/4 | 0/4 | 753k | 55 | 69 | 58 s |
+| **mcp** | **2/4** | **2/4** | **1/4** | 564k | 44 | 50 | 44 s |
+
+Per task for `mcp`:
+
+| Task | Before | After | What changed |
+|---|---|---|---|
+| jevjudge-gav | 15/15 PPP, 39k | 15/15 PPP, 26k | `filter="JevJudge"`; 9 → 6 tool calls |
+| jackson3-ptv | 10/10 PPP, 144k | 8/10 ..., 109k | filtered symbol lists cut the largest turn from 76k to 26k tokens; the answer omitted two facts |
+| spring-ai-hostedtool | 7/8 ..., 23k | 2/8 ..., 407k (budget) | stable `2.0.1` was correct, but the agent never opted into pre-releases and wandered for 21 tool calls |
+| agentutils-shell-trap | 5/5 PPP, 46k | 5/5 PP., 21k | filtered lookups halved tokens; Jev alone rejected the correct answer (`grounded=0.48`) |
+
+- **The server changes worked mechanically:** a preflight verified release-only latest, case-insensitive symbol lookup,
+  version-word fallback and filtered class lists; the new run used the smaller filtered results. On the three comparable MCP tasks, input fell from 228k to
+  155k (32%), and their largest turns were much smaller.
+- **The aggregate score did not improve in this one trial.** `mcp` went from 3/4 to 2/4 by code checks and the LLM
+  judge, and total tokens rose because `spring-ai-hostedtool` alone used 407k. After learning that stable 2.0.1 has
+  no `HostedTool`, the agent searched unrelated artifacts instead of calling `get_latest_version` with
+  `includePreReleases=true` to inspect 2.1.0-M1.
+- **The Jackson failure is answer variance, not missing evidence.** The tools returned both coordinates, versions and
+  the filtered API pages, but the final answer omitted `tools.jackson.core` and gave the wrong change version.
+- **The non-MCP arms are controls, not effects of the server change.** Their movement between runs demonstrates why
+  one trial per cell cannot establish a performance change.
+
+Full diff: [`results/COMPARISON-clean-20261006.md`](results/COMPARISON-clean-20261006.md).
+
+A five-trial follow-up on `spring-ai-hostedtool` / `mcp` confirms the variance: only 1/5 trials found and inspected
+2.1.0-M1. The best trial got 8/8 facts and passed the code and LLM judges using 217k tokens, but Jev scored
+`grounded=0.59`, just below its 0.60 bar. The other four trials missed required facts; median usage was 312k tokens.
+The aggregate table above remains the single matched before/after run—using only the best follow-up would be
+optimistic selection. An extra trial after rolling back to the old server reproduced its original result almost
+exactly: 7/8 facts, 24k tokens and 5 tool calls, again failing only because it called 2.1.0-M1 a release rather than
+a milestone. Details: [`results/COMPARISON-post-mcp-hostedtool-5trials-20261006.md`](results/COMPARISON-post-mcp-hostedtool-5trials-20261006.md).
 
 ## How evals improved javadocs.dev
 
-The first runs (agent and LLM judge `openai.gpt-oss-120b`) showed the MCP arms doing best, and the transcripts showed
-where they still went wrong:
+The baseline transcripts, and calls to the same server directly, show where the `mcp` arm went wrong or wasted tokens:
 
-- `search_artifacts("jackson-databind 3.0.0")` returned nothing: a version in the query never matched. One run called
-  `search_artifacts` 27 times.
-- `symbol_to_artifact("jevjudge")` returned nothing: the symbol index was case-sensitive.
-- `list_javadoc_symbols` returned every class of a large library (hundreds for jackson-databind), and the Jackson runs
-  used more than 250k input tokens.
-- "Latest" was the last entry in `maven-metadata.xml`: publish order, not version order, and pre-releases included
-  (Netty resolved to `5.0.0.Alpha2`).
+- **"Latest" included pre-releases, in publish order.** It was the last entry in `maven-metadata.xml`:
+  `spring-ai-openai` resolved to the milestone `2.1.0-M1`, which cost `mcp` the `spring-ai-hostedtool` task, and Netty
+  to `5.0.0.Alpha2`.
+- **`list_javadoc_symbols` returns every class.** For jackson-databind that's 155k characters for 3.2.3 and 134k for
+  2.22.3; one turn sent 76k input tokens, and the Jackson task alone used 143k of `mcp`'s 254k tokens.
+- **`search_artifacts` misses class names and versions.** `"JevJudge"`, `"judge"` and `"jev"` all returned nothing
+  after `symbol_to_artifact` had already found the artifact, and `"jackson-databind 3.0.0"` returns nothing because
+  the version never matches.
+- **`symbol_to_artifact` is case-sensitive:** `"jevjudge"` returns nothing.
 
-The fixes, deployed 2026-10-02:
+The changes:
 
 - **javadocs.dev MCP:** `search_artifacts` drops version words when the full query matches nothing;
   `symbol_to_artifact` falls back to a case-insensitive match; `list_javadoc_symbols` takes an optional `filter`;
@@ -71,28 +119,6 @@ The fixes, deployed 2026-10-02:
   descriptions name the mistakes agents made.
 - **zio-mavencentral 0.14.1:** Maven version ordering and pre-release detection, which also fixed the website's
   `/latest` links and badges.
-
-Before → after with `gpt-oss-120b` (full tables in [`results/COMPARISON-20261002.md`](results/COMPARISON-20261002.md)):
-
-| Arm | Code checks pass | LLM judge pass | Jev pass | Total tokens |
-|---|---|---|---|---|
-| base | 0/4 → 0/4 | 0/4 → 0/4 | 0/4 → 0/4 | 10k → 10k |
-| shell | 0/4 → 0/4 | 0/4 → 0/4 | 0/4 → 0/4 | 643k → 905k |
-| web-brave | 1/4 → 0/4 | 1/4 → 0/4 | 0/4 → 0/4 | 903k → 882k |
-| mcp | 3/4 → 2/4 | 3/4 → 2/4 | 2/4 → 2/4 | 664k → 688k |
-| mcp-toolsearch | 1/4 → **3/4** | 1/4 → 2/4 | 0/4 → 1/4 | 305k → 385k |
-| mcp-toolsearch-vector | 3/4 → 0/4 | 3/4 → 0/4 | 2/4 → 0/4 | 674k → 491k |
-
-- **Keyword tool search improved the most.** It now solves `jevjudge-gav` and `agentutils-shell-trap`, and got all
-  10 facts on `jackson3-ptv` for the first time. Agents used `filter` in every MCP run.
-- **`spring-ai-hostedtool` changed meaning,** so its drop is expected: "latest" is now 2.0.1, which has no
-  `HostedTool`, and its reference was rewritten to match. An earlier correct answer ("not in 2.0.1, only in the
-  2.1.0-M1 milestone") passes both live judges under the new reference (`SpikeTest` 9).
-- **The vector arm's drop is model variance, not search:** on `jevjudge-gav`, `symbol_to_artifact` returned the right
-  artifact three times and the model still answered "no artifact contains JevJudge". Several trials per cell are
-  needed to separate real changes from noise.
-- The "before" side's main run kept only its metrics: its raw results were deleted by a `./gradlew clean`, so its
-  `summary.csv` was rebuilt from this README's tables.
 
 ## Arms
 
@@ -115,13 +141,12 @@ exist. Only the tools differ.
 
 | Task | What it tests | Reference (short) |
 |---|---|---|
-| `jevjudge-gav` | Find the artifact from just a class name. Two artifacts contain a `JevJudge`, one of them a Scala library. Then latest version, the Builder API and a constant | `org.springaicommunity:typesafe-spring-ai:0.3.0`, 11 Builder methods, `DEFAULT_MIN_CONFIDENCE = 0.6` |
+| `jevjudge-gav` | Find the artifact from just a class name. Two artifacts contain a `JevJudge`, one of them a Scala library. Then latest version, the Builder API and a constant | `org.springaicommunity:typesafe-spring-ai:0.4.0`, 11 Builder methods, `DEFAULT_MIN_CONFIDENCE = 0.6` |
 | `jackson3-ptv` | Stale knowledge: Jackson 3 moved to groupId `tools.jackson.core`. Compare the Builder API between 3.x and 2.x, and a security-related behavior change | 3.2.3 vs 2.22.3; `allowSubTypesWithExplicitDeserializer()` exists only in 3.x; `allowIfSubTypeIsArray()` changed in 3.1.4 / 2.18.8 (databind#5981) |
 | `spring-ai-hostedtool` | The class exists only in a milestone: the latest stable release doesn't have it | Not in stable 2.0.1; in the 2.1.0-M1 milestone `HostedTool` permits WebSearch, FileSearch, CodeInterpreter, Mcp, ImageGeneration, Raw. Either "not in 2.0.1, see 2.1.0-M1" or "2.1.0-M1 (a milestone)" counts as correct |
-| `agentutils-shell-trap` | A default that's easy to miss, plus a method that doesn't exist | 0.12.0; `/bin/bash -c`; `shellCommand(...)`; `cleanEnvironment` defaults to false; there is no `JevJudge.Builder.rubric()` |
+| `agentutils-shell-trap` | A default that's easy to miss, plus a method that doesn't exist | 0.13.0; `/bin/bash -c`; `shellCommand(...)`; `cleanEnvironment` defaults to false; there is no `JevJudge.Builder.rubric()` |
 
-The reference answers were checked against the published javadoc and sources jars on 2026-09-30 (`spring-ai-hostedtool`'s
-was rewritten on 2026-10-02, after javadocs.dev started resolving "latest" to the latest stable release). Each task
+The reference answers were checked against the published javadoc and sources jars. Each task
 pins the versions its reference depends on: every eval run logs a `STALE REFERENCE` warning when Maven Central has
 moved past them, and `./gradlew test -Plive --tests '*ReferenceFreshness*'` fails. Re-verify the reference, then
 update the pin in `Tasks.kt`.
@@ -140,7 +165,7 @@ The `shell` and web arms run the model's commands in a fresh container per run (
 `python3`, running as a non-root user. Only the run's scratch directory is mounted, at `/workspace`, and none of the
 host's environment is passed in, so the commands can't read the API keys. The network is open, since the agent has
 to reach Maven Central. `EVALS_SANDBOX=local` runs commands on the host instead (with only `PATH` and `HOME` from its
-environment); all runs before 2026-10-02 13:50 ran on the host with its full environment.
+environment).
 
 Run (needs Java 21+):
 
@@ -161,12 +186,11 @@ Model settings:
 | Env var | Default | What it sets |
 |---|---|---|
 | `AGENT_MODEL` | `moonshotai.kimi-k2.5` | The agent, for every arm (also WebFetch's page summaries) |
-| `AGENT_API` | `chat-completions` | `responses` for gpt-oss; most Bedrock mantle models only support Chat Completions |
+| `AGENT_API` | `chat-completions` | `responses` for models served over the Responses API; most Bedrock mantle models only support Chat Completions |
 | `JUDGE_MODEL` | `deepseek.v3.2` | The LLM judge, always over Chat Completions; keep it a different family from the agent |
 | `BEDROCK_MANTLE_BASE_URL` | `https://bedrock-mantle.us-east-1.api.aws/v1` | The GPT‑5.x models use `/openai/v1` |
 
-The earlier runs used `AGENT_API=responses AGENT_MODEL=openai.gpt-oss-120b`, with `openai.gpt-oss-120b` as the LLM
-judge too. Embeddings for `mcp-toolsearch-vector` come from the Bedrock runtime (`InvokeModel`) with the same API key,
+Embeddings for `mcp-toolsearch-vector` come from the Bedrock runtime (`InvokeModel`) with the same API key,
 because mantle has no embedding models (`evals.embedding.model`, `evals.embedding.base-url`); they count as in-tool
 tokens.
 
@@ -179,7 +203,7 @@ Run budget (`evals.budget.*`), so an agent stuck in a loop still produces a grad
 | `max-input-tokens` | 250,000 | Same as `max-model-calls` (every turn re-sends the whole history) |
 | hard stop | max-model-calls + 3 | The run is stopped and recorded as an error |
 
-Garbled tool names (gpt-oss leaks `<|channel|>` markers into them) are resolved to the real tool, unknown tools get an
+Garbled tool names (some models leak `<|channel|>` markers into them) are resolved to the real tool, unknown tools get an
 error the model can recover from, and tool calls with cut-off JSON arguments (Kimi) get an error result and are
 repaired in the history, which Bedrock would otherwise reject on the next request.
 
@@ -219,43 +243,33 @@ show a recorded run without calling a model.
 
 Both judges fail an answer that fails the code checks, so their verdicts are comparable.
 
-| Run | LLM judge | Passed (LLM / Jev) | Agreement | Time for all answers (LLM / Jev) | Output tokens (LLM / Jev) |
-|---|---|---|---|---|---|
-| Baseline, 20 answers | `gpt-oss-120b` | 5 / 2 | 17/20 | 122 s / 5.8 s | 11.4k / 875 |
-| Post-change, 24 answers | `gpt-oss-120b` | 4 / 3 | 23/24 | 96 s / 7.2 s | 13.8k / 1.1k |
-| Kimi run, 24 answers | `deepseek.v3.2` | 7 / 5 | 22/24 | 82 s / 6.5 s | 3.0k / 1.1k |
-| Kimi run, sandbox, Jev bar 0.6, 24 answers | `deepseek.v3.2` | 6 / 6 | 24/24 | 67 s / 6.8 s | 3.1k / 1.1k |
+Baseline, 16 answers:
 
-- **Both judges catch hallucinations.** Every answer with invented APIs or wrong versions failed both. The LLM judge
-  lists the specific wrong claims ("Incorrect Maven coordinates: …typesafe-java-sdk:0.3.0"); Jev's feedback is built
-  from the rubric ("grounded: … scored 0.03, needs at least 0.60"), so it is consistent but less specific.
-- **Jev's `grounded` bar was lowered from 0.7 to 0.6 on 2026-10-02.** At 0.7 it failed correct answers that added
-  detail the reference doesn't mention (scores 0.52–0.68) while the LLM judge passed them; those were most of the
-  disagreements. Results before that date were graded at 0.7.
-- **The LLM judge doesn't penalize empty answers enough:** it scored an empty answer 0.67. That's why every verdict
-  also requires the code checks.
-- **Jev was about 5× cheaper and 21× faster** than the `gpt-oss-120b` judge on the baseline run. One Jev call answers
-  every criterion together, while the LLM judge writes an explanation for each answer.
+| | LLM judge (`deepseek.v3.2`) | Jev |
+|---|---|---|
+| Passed | 4/16 | 4/16 |
+| Same verdict | 16/16 | 16/16 |
+| Time for all answers | 42 s | 5.4 s |
+| Input / output tokens | 18.7k / 1.9k | 41.5k / 700 |
+| Cost at list prices | $0.0152 | $0.0017 |
 
-### Judge cost (baseline run)
+- **Both judges caught every wrong answer,** and they agreed on all 16.
+- **The LLM judge explains its verdicts but misses things.** It scored two failing answers 1.00: on
+  `spring-ai-hostedtool`/`mcp` it praised the answer for "properly noting the 2.1.0-M1 milestone" though it never
+  says "milestone", and on `jevjudge-gav`/`web-brave` it missed that `feedbackRenderer` wasn't listed. The code checks
+  caught both, which is why every verdict also requires them. It also scores an empty answer 0.67 ("nothing wrong was
+  said").
+- **Jev's `grounded` bar is 0.6.** At 0.7 it failed correct answers that added detail the reference doesn't mention.
+- **Jev was 8× faster and 9× cheaper.** One Jev call answers every criterion together, while the LLM judge writes an
+  explanation for each answer. Jev sends more than twice the input tokens (its state carries the question, answer,
+  reference and tool-call trace), but its input is 15× cheaper per token and its output isn't billed.
 
-List prices on 2026-09-30, per 1M tokens:
+List prices per 1M tokens, checked 2026-10-06; check the providers' pricing pages before relying on them:
 
 | Model | Input | Output | Source |
 |---|---|---|---|
-| Jev (TypeSafe) | $0.042 | $0 (not billed; cached input also $0) | Input: [typesafe.ai](https://typesafe.ai/) ("$42 per billion input tokens"). Output and cached input: [Cloudflare's Jev model page](https://developers.cloudflare.com/ai/models/typesafe/jev/) |
-| `gpt-oss-120b` on Bedrock (Standard tier) | $0.15 | $0.60 | [Amazon Bedrock pricing](https://aws.amazon.com/bedrock/pricing/); US regions per third-party price trackers (the AWS page lists Sydney at $0.1545 / $0.618) |
-
-| Judge | Input cost | Output cost | Total (20 answers) | Per answer |
-|---|---|---|---|---|
-| LLM (gpt-oss-120b) | 26,664 tok → $0.0040 | 11,422 tok → $0.0069 | **$0.0108** | $0.00054 |
-| Jev | 49,928 tok → $0.0021 | 875 tok → $0 | **$0.0021** | $0.00011 |
-
-- Jev's input is about 3.6× cheaper per token, and its output is free: that's 63% of the LLM judge's bill.
-- Jev sends about 1.9× as many input tokens (its state carries the question, answer, reference and tool-call
-  trace), which is why the gap is about 5× rather than larger.
-- `gpt-oss-120b` is one of the cheapest models on Bedrock; a stronger LLM judge widens the gap, while Jev's cost stays
-  the same. These are one run's numbers at list prices; check the providers' pricing pages before relying on them.
+| Jev (TypeSafe) | $0.042 | $0 (not billed) | [typesafe.ai](https://typesafe.ai/) ("$42 per billion input tokens"); output: [Cloudflare's Jev model page](https://developers.cloudflare.com/ai/models/typesafe/jev/) |
+| `deepseek.v3.2` on Bedrock | $0.62 | $1.85 | [Amazon Bedrock pricing](https://aws.amazon.com/bedrock/pricing/); US-region prices per third-party trackers ([computeprices.com](https://computeprices.com/providers/aws/models/deepseek-v3-2)) |
 
 ## How it works (code map)
 
@@ -274,6 +288,7 @@ List prices on 2026-09-30, per 1M tokens:
 | `TokenTracking.kt` | Per-turn token and tool accounting; forces the wrap-up answer when the budget is used up |
 | `EvalRunner.kt` | Runs the task × arm matrix, calls both judges, writes the report |
 | `compare.py` | Before/after tables from two sets of result directories |
+| `ToolSearchDiagnosticsTest.kt` | Live diagnostics for the tool-search arms: tool definition sizes, index rankings, replay of recorded queries |
 
 ## Caveats
 
@@ -282,76 +297,22 @@ List prices on 2026-09-30, per 1M tokens:
   arms use. The facts came from the published artifacts, not from how javadocs.dev renders them.
 - `web-bedrock` hasn't been measured: this account can't use the GPT‑5.x models it needs. The arm is ready and turns
   on when `BEDROCK_WEB_SEARCH_MODEL` is set.
-- **Shell-arm results before 2026-10-02 13:50 ran on the host,** with its environment and tools; later runs use the
-  Docker sandbox, so shell-arm numbers across that change aren't strictly comparable. The sandbox isolates files
-  and secrets, not the network.
+- The shell sandbox isolates files and secrets, not the network: the agent has to reach Maven Central.
 
-## Appendix: gpt-oss-120b runs
+## Tool search
 
-### Baseline, every run (2026-09-30)
+The `mcp-toolsearch*` arms aren't part of the baseline above. Diagnostic runs with Kimi K2.5
+(`results/20261005-*-toolsearch-diag-*`, two trials of the three MCP arms) found two systemic limits at this scale:
 
-`results/20260930-133320-pre-mcp-changes`. Columns:
+- **Little to save.** The 8 javadocs.dev tool definitions are about 1.5k tokens per turn, at most 19% of the `mcp`
+  arm's input; most input is tool results re-sent every turn. Searches return 3–5 tools and Spring AI keeps every
+  tool returned, so after one search the agent holds 6–8 of the 8 anyway.
+- **Keyword search strands the agent.** The model searches with the question's words ("typesafe-spring-ai JevJudge
+  rubric builder Maven"), not the capability it needs. Of 23 keyword searches, 5 returned nothing and 9 at most one
+  tool; in 3 of 8 runs the agent never got `search_artifacts` or `symbol_to_artifact`, and once answered "these
+  libraries don't exist" after two model calls. The vector index always returns about 5 tools, so it never strands
+  the agent, but saves no tokens.
 
-- **Checks:** required facts found / total. `+N invented` means N API names that don't exist; `(budget)` means the final answer was forced.
-- **LLM / Jev:** pass or fail, with the judge's 0–1 score.
-- **In-tool tok:** tokens spent by model calls inside tools (WebFetch page summaries).
-
-| Task | Arm | Checks | LLM | Jev | In tok | Out tok | In-tool tok | Model calls | Tool calls | Time s |
-|---|---|---|---|---|---|---|---|---|---|---|
-| jevjudge-gav | base | 2/15 | FAIL 0.00 | FAIL 0.04 | 119 | 1,612 | 0 | 1 | 0 | 27.1 |
-| jevjudge-gav | shell | 1/15 | FAIL 0.00 | FAIL 0.05 | 25,857 | 951 | 0 | 6 | 5 | 12.9 |
-| jevjudge-gav | web-brave | 14/15 | FAIL 0.25 | FAIL 0.32 | 235,113 | 4,375 | 15,224 | 27 | 25 | 75.2 |
-| jevjudge-gav | mcp | 15/15 | PASS 1.00 | PASS 0.92 | 38,643 | 1,704 | 0 | 11 | 10 | 16.8 |
-| jevjudge-gav | mcp-toolsearch | 1/15 | FAIL 0.00 | FAIL 0.04 | 30,057 | 2,782 | 0 | 18 | 10 | 48.0 |
-| jackson3-ptv | base | 3/10 +18 invented | FAIL 0.08 | FAIL 0.13 | 126 | 4,167 | 0 | 1 | 0 | 29.8 |
-| jackson3-ptv | shell | 6/10 (budget) | FAIL 0.25 | FAIL 0.26 | 292,599 | 5,999 | 0 | 20 | 19 | 63.8 |
-| jackson3-ptv | web-brave | 3/10 +2 invented | FAIL 0.08 | FAIL 0.18 | 227,320 | 6,454 | 46,975 | 27 | 25 | 97.0 |
-| jackson3-ptv | mcp | 6/10 (budget) | FAIL 0.17 | FAIL 0.22 | 312,897 | 6,866 | 0 | 24 | 23 | 79.1 |
-| jackson3-ptv | mcp-toolsearch | 0/10 | FAIL 0.67 | FAIL 0.26 | 8,451 | 1,001 | 0 | 6 | 4 | 8.5 |
-| spring-ai-hostedtool | base | 1/7 | FAIL 0.00 | FAIL 0.13 | 102 | 1,239 | 0 | 1 | 0 | 18.3 |
-| spring-ai-hostedtool | shell | 6/7 | FAIL 0.33 | FAIL 0.40 | 159,497 | 3,458 | 0 | 25 | 24 | 78.5 |
-| spring-ai-hostedtool | web-brave | 3/7 | FAIL 0.08 | FAIL 0.17 | 72,938 | 2,111 | 22,764 | 12 | 11 | 35.4 |
-| spring-ai-hostedtool | mcp | 7/7 | PASS 1.00 | FAIL 0.74 | 16,019 | 842 | 0 | 5 | 4 | 11.2 |
-| spring-ai-hostedtool | mcp-toolsearch | 7/7 | PASS 1.00 | FAIL 0.72 | 17,453 | 1,212 | 0 | 7 | 4 | 14.1 |
-| agentutils-shell-trap | base | 2/5 +1 invented | FAIL 0.13 | FAIL 0.11 | 128 | 2,355 | 0 | 1 | 0 | 35.8 |
-| agentutils-shell-trap | shell | 1/5 | FAIL 0.06 | FAIL 0.07 | 150,147 | 4,158 | 0 | 27 | 25 | 54.6 |
-| agentutils-shell-trap | web-brave | 5/5 | PASS 1.00 | FAIL 0.77 | 251,103 | 5,044 | 13,642 | 28 | 25 | 91.8 |
-| agentutils-shell-trap | mcp | 5/5 (budget) | PASS 1.00 | PASS 0.83 | 282,131 | 5,078 | 0 | 20 | 19 | 64.5 |
-| agentutils-shell-trap | mcp-toolsearch | 3/5 | FAIL 1.00 | FAIL 0.74 | 238,742 | 4,914 | 0 | 27 | 18 | 56.7 |
-
-At that time, `spring-ai-hostedtool`'s reference called 2.1.0-M1 "latest" (javadocs.dev's behavior then), and the
-trap check missed the phrasing "does not contain a `rubric()` method" (since fixed; the table keeps the original
-verdict).
-
-### Baseline by task
-
-- **`jevjudge-gav`:** `mcp` solved it in 11 model calls (`symbol_to_artifact` → `get_latest_version` →
-  `list_javadoc_symbols` → `get_javadoc_symbol`, 15/15 facts). `web-brave` got the complete Builder API but the SDK
-  artifact (`typesafe-java-sdk`). `shell` and `mcp-toolsearch` concluded the class doesn't exist. `base` invented
-  `com.github.patrickfav:jev-judge:1.4.0`.
-- **`jackson3-ptv`:** no arm passed. The tool-using arms kept searching `com.fasterxml.jackson.core` for a 3.x release,
-  the stale knowledge this task exposes; `mcp` and `shell` used more than 250k input tokens before being made to
-  answer. `web-brave` invented `allowIfSubTypeIsCollection`; `base` invented 18 methods.
-- **`spring-ai-hostedtool`:** both MCP arms listed all six records and `Raw`. `shell` attributed them to the wrong
-  version; `web-brave` gave wrong type names from a blog-style source; `base` invented `RestTool` / `RawTool`.
-- **`agentutils-shell-trap`:** `mcp` and `web-brave` got everything right, including that `rubric()` doesn't exist.
-  `shell` and `base` fell for the trap and gave the default shell as `/bin/sh`.
-
-### Tool search: keyword vs embeddings (baseline)
-
-`mcp-toolsearch-vector` was measured in a separate run on 2026-09-30 (`results/20260930-142417-pre-mcp-changes-vector`):
-
-| Task | Arm | Checks | LLM | Jev | In tok | Out tok | In-tool tok | Model calls | Tool calls | Time s |
-|---|---|---|---|---|---|---|---|---|---|---|
-| jevjudge-gav | mcp-toolsearch-vector | 15/15 | PASS 1.00 | PASS 0.93 | 31,703 | 1,751 | 907 | 8 | 5 | 20.9 |
-| jackson3-ptv | mcp-toolsearch-vector | 4/10 +2 invented (budget) | FAIL 0.00 | FAIL 0.11 | 302,435 | 5,908 | 901 | 20 | 18 | 71.9 |
-| spring-ai-hostedtool | mcp-toolsearch-vector | 7/7 | PASS 1.00 | FAIL 0.70 | 50,980 | 1,611 | 900 | 10 | 8 | 21.7 |
-| agentutils-shell-trap | mcp-toolsearch-vector | 5/5 (budget) | PASS 1.00 | PASS 0.85 | 270,745 | 4,944 | 913 | 25 | 22 | 65.4 |
-
-- **Same accuracy as offering every tool, at about the same cost.** The embeddings themselves cost about 900 tokens
-  per task, for indexing 8 tool descriptions and embedding each search query.
-- **The embeddings separate these tools only weakly.** In a live check (`SpikeTest` 8), "which Maven artifact
-  contains this Java class?" ranked `symbol_to_artifact` 4th, with all 8 tools scoring 0.49–0.59, because every
-  description talks about Maven artifacts and javadoc. With `maxResults(5)`, it still got through.
-- **Tool search is below its sweet spot here.** The MCP server has 8 tools, under the roughly 10 where Spring AI
-  recommends tool search, so the extra search step adds turns and room for mistakes.
+Across those runs: `mcp` 5/8 passed with 713k input tokens, `mcp-toolsearch` 5/8 with 582k, `mcp-toolsearch-vector`
+4/8 with 827k. Spring AI recommends tool search from about 10 tools; `ToolSearchDiagnosticsTest` prints the rankings
+and replays the recorded queries.
