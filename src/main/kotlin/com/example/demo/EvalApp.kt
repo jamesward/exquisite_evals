@@ -23,11 +23,17 @@ import org.springframework.context.annotation.Bean
 class EvalApp {
 
     @Bean
-    fun armCatalog(props: EvalProperties, builder: ChatClient.Builder, mcpClients: List<McpSyncClient>) =
+    fun armCatalog(
+        props: EvalProperties,
+        builder: ChatClient.Builder,
+        mcpClients: List<McpSyncClient>,
+        typeSafeClient: TypeSafeClient,
+        @Value("\${spring.ai.typesafe.api-key:}") typeSafeApiKey: String,
+    ) =
         // the MCP starter registers the clients as one List bean, so inject the list (not ObjectProvider<McpSyncClient>)
         ArmCatalog(props, builder, {
             SyncMcpToolCallbackProvider.builder().mcpClients(mcpClients).build().toolCallbacks.toList()
-        })
+        }, typeSafeClient = typeSafeClient.takeIf { typeSafeApiKey.isNotBlank() })
 
     /**
      * Both judges always run, so their verdicts, cost and agreement can be compared. The LLM judge gets its own
