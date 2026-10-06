@@ -13,11 +13,26 @@ style: |
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
-# Evals: Measuring AI Agents
+# Exquisite Evals for Skills & MCPs
 
-### How we used evals to make javadocs.dev better for agents
+### How we used Spring AI, Jev, & Evals to make javadocs.dev better for agents
 
-James Ward
+James Ward - jamesward.com - AWS & AAIF TC
+Christian Tzolov - Spring AI Lead @ Broadcom & AAIF Ambassador
+
+---
+
+## 3D Evals: Task, Arm, Judge
+
+for t in task:
+  for a in arm:
+    metrics
+
+
+    for j in judge:
+      metrics
+
+???
 
 ---
 
@@ -25,12 +40,12 @@ James Ward
 
 A **test for a system whose output isn't deterministic**, like an AI agent.
 
-- **Task**: an input, plus what a good answer must contain (a reference answer)
 - **System under test**: the model + prompt + tools you want to measure
+- **Task**: an input, plus what a good answer must contain (a reference answer)
 - **Grader**: code, another model, or a person decides pass or fail
-- **Metrics**: accuracy, hallucinations, tokens (cost), time, tool calls
+- **Meta Metrics**: accuracy, hallucinations, tokens (cost), time, tool calls
 
-Run the same tasks on each variant, compare the numbers, change one thing, run again.
+Run the same tasks on each variant/arm, compare the numbers, change one thing, run again.
 
 <!--
 Unit tests assert an exact output. Evals assert properties of outputs that vary from run to run,
@@ -39,15 +54,27 @@ and they compare variants rather than just passing or failing one build.
 
 ---
 
-## Grading: three kinds of judge
+## Arm
+
+???
+
+---
+
+## Judge
 
 | Grader | Good at | Watch out for |
 |---|---|---|
 | **Code checks** | Exact facts: versions, coordinates, method names, "says X doesn't exist" | Brittle wording and typography |
 | **LLM as judge** | Meaning, completeness, explaining what's wrong | Cost, leniency, varies run to run |
-| **Typed judge model** ([Jev](https://typesafe.ai/)) | Many yes/no and score questions in one cheap, fast call | Thresholds are a design decision |
+| **Typed judge model** ([Jev](https://typesafe.ai/)) | Many yes/no and score questions in one cheap, fast call, Parallel | Thresholds are a design decision |
 
 Combine them: code for what code can settle, a judge for the rest.
+
+---
+
+## What is Jev / System One / Decision Models?
+
+
 
 ---
 
@@ -86,8 +113,6 @@ Same model (`gpt-oss-120b`, later `kimi-k2.5`, on Amazon Bedrock), same coding-a
 | `shell` | `Bash` + `TodoWrite` (spring-ai-agent-utils) |
 | `web-brave` | Brave search + WebFetch + shell |
 | `mcp` | The 8 javadocs.dev MCP tools, all offered up front |
-| `mcp-toolsearch` | Same tools, found through Spring AI tool search (Lucene keywords) |
-| `mcp-toolsearch-vector` | Same tools, tool search over Cohere v3 embeddings |
 
 <span class="small">Also ready: `web-bedrock`, Bedrock's hosted web search, once the account has GPT‑5.x access.</span>
 
@@ -101,8 +126,6 @@ Same model (`gpt-oss-120b`, later `kimi-k2.5`, on Amazon Bedrock), same coding-a
 | shell | 0/4 | 0/4 | 0/4 | 643k | 52 s |
 | web-brave | 1/4 | 1/4 | 0/4 | 903k | 75 s |
 | **mcp** | **3/4** | **3/4** | **2/4** | 664k | 43 s |
-| mcp-toolsearch | 1/4 | 1/4 | 0/4 | 305k | 32 s |
-| mcp-toolsearch-vector* | 3/4 | 3/4 | 2/4 | 674k | 45 s |
 
 - The base model is fluent and wrong: invented coordinates, 18 Jackson methods, a `rubric()` API
 - Shell and web burned hundreds of thousands of tokens and were still mostly wrong
@@ -151,17 +174,7 @@ Agents trust "latest", so a wrong latest sends them to the wrong API. It also af
 
 ## Did it help?
 
-Code checks passed, before → after (one trial each):
-
-| Arm | jevjudge-gav | jackson3-ptv | agentutils-shell-trap | spring-ai-hostedtool |
-|---|---|---|---|---|
-| mcp | ✅ → ✅ | ❌ → ❌ | ✅ → ✅ | ✅ → ❌ |
-| mcp-toolsearch | ❌ → ✅ | ❌ → ✅ (10/10 facts) | ❌ → ✅ | ✅ → ❌ |
-| mcp-toolsearch-vector | ✅ → ❌ | ❌ → ❌ | ✅ → ❌ | ✅ → ❌ |
-
-- **Keyword tool search went from 1/4 to 3/4.** Agents used `filter` in every MCP arm
-- **`spring-ai-hostedtool` became the hardest task:** "latest" now means 2.0.1, which has no `HostedTool`. Agents looked there first and rarely recovered, even when they set `includePreReleases`
-- **The vector arm called `symbol_to_artifact`, got the right answer, and said "not found."** That's model variance, so run more than one trial
+???
 
 ---
 
@@ -172,8 +185,6 @@ Same tasks, same javadocs.dev. Agent `gpt-oss-120b` → `kimi-k2.5`; LLM judge �
 | Arm | Code checks | Jev | Total tokens | Avg time |
 |---|---|---|---|---|
 | mcp | 2/4 → 3/4 | 2/4 → 2/4 | 688k → 484k | 62 → 27 s |
-| mcp-toolsearch | 3/4 → 2/4 | 1/4 → 2/4 | 385k → 184k | 42 → 16 s |
-| mcp-toolsearch-vector | 0/4 → 2/4 | 0/4 → 1/4 | 491k → 440k | 50 → 45 s |
 | shell | 0/4 → 0/4 | 0/4 → 0/4 | 905k → 798k | 126 → 307 s |
 
 - First pass on `jackson3-ptv` (Kimi + `mcp`). The MCP arms used fewer tokens and took about half the time
@@ -221,28 +232,6 @@ Read the transcripts, and check the checks.
                               v
       results/<timestamp>-<label>/  report.md · results.json · summary.csv  -->  compare.py
 ```
-
----
-
-## Arms are just configuration
-
-```kotlin
-Arm("mcp-toolsearch-vector", "javadocs.dev MCP tools behind tool search (Cohere v3)",
-    client = { agentClient.clone() },
-    tools = { run -> mcpTools().map { LoggingToolCallback(it, run.toolCalls) } },
-    toolAdvisor = { run, manager ->
-        val store = SimpleVectorStore.builder(embeddings(run.overhead)).build()
-        ToolSearchToolCallingAdvisor.builder()
-            .toolCallingManager(manager)
-            .toolIndex(VectorToolIndex(store))
-            .maxResults(5)
-            .build()
-    })
-```
-
-- `ArmCatalog` builds every arm; optional ones turn on from config (`BRAVE_API_KEY`, `BEDROCK_WEB_SEARCH_MODEL`)
-- Every tool is wrapped to record `(name, arguments, result)` for the judges
-- Embedding and WebFetch model calls count as *in-tool* tokens
 
 ---
 
@@ -304,8 +293,8 @@ Both judges fail an answer that fails the code checks, so their verdicts are com
 
 ## Links
 
-- javadocs.dev MCP server: https://www.javadocs.dev/mcp
+- javadocs.dev: https://www.javadocs.dev/
 - Spring AI 2.1 reference: https://docs.spring.io/spring-ai/reference/2.1/
 - spring-ai-agent-utils: https://github.com/spring-ai-community/spring-ai-agent-utils
 - spring-ai-typesafe (JevJudge): https://github.com/spring-ai-community/spring-ai-typesafe
-- zio-mavencentral: https://github.com/jamesward/zio-mavencentral
+- 
