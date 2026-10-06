@@ -1,5 +1,6 @@
 {
   "devDependencies": {
-    "@marp-team/marp-cli": "latest"
+    "@marp-team/marp-cli": "latest",
+    "@shikijs/markdown-it": "4.5.0"
   }
 }

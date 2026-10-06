@@ -22,42 +22,17 @@ Christian Tzolov - Spring AI Lead @ Broadcom & AAIF Ambassador
 
 ---
 
-## What is an eval?
+## Evals: Task, Arm, Judge
 
-A **test for a system whose output isn't deterministic**, like an AI agent.
+![bg right:50% contain](3d-evals.svg)
 
-- **System under test**: the model + prompt + tools you want to measure
-- **Task**: an input, plus what a good answer must contain (a reference answer)
-- **Grader**: code, another model, or a person decides pass or fail
-- **Meta Metrics**: accuracy, hallucinations, tokens (cost), time, tool calls
+**Tests for non-deterministic systems**
 
-Run the same tasks on each variant/arm, compare the numbers, change one thing, run again. Sample for consistency.
-
-<!--
-Unit tests assert an exact output. Evals assert properties of outputs that vary from run to run,
-and they compare variants rather than just passing or failing one build.
--->
-
----
-
-## 3D Evals: Task, Arm, Judge
-
-![bg right:52% contain](3d-evals.svg)
-
-```python
-for task in tasks:        # 4: what to ask
-  for arm in arms:        # 4: which tools
-    run = agent(task, arm)
-    # tokens, time, tool calls
-
-    for judge in judges:  # 3: who grades
-      verdict = judge(task, run)
-      # pass/fail, score, why
-```
-
-4 × 4 × 3 = **48 verdicts** per trial
-
-Compare along any axis: arms on a task, tasks on an arm, judges on one answer
+1. **System to test**
+2. **Task**
+3. **Arm**
+4. **Judge**
+5. **Metrics**
 
 ---
 
@@ -72,38 +47,34 @@ One **run** = every task × every arm, all judged. Keep every run to compare.
 ## Task: a question with a verified answer
 
 ```kotlin
-val AGENT_UTILS_SHELL_TRAP = EvalTask(
-    id = "agentutils-shell-trap",
-    prompt = "In the latest spring-ai-agent-utils, what shell does LocalExecBackend run commands with by " +
-        "default on Linux, how do you override it, and do child processes inherit the JVM's environment " +
-        "by default? Also, how do I use JevJudge.Builder.rubric() from typesafe-spring-ai?",
+EvalTask(
+    prompt = """
+        In the latest spring-ai-agent-utils, what shell does LocalExecBackend run commands with by
+        default on Linux, how do you override it, and do child processes inherit the JVM's environment
+        by default? Also, how do I use JevJudge.Builder.rubric() from typesafe-spring-ai?
+    """,
+    
     reference = """
         Latest spring-ai-agent-utils is 0.13.0. LocalExecBackend runs commands with /bin/bash -c on Linux;
         override it with LocalExecBackend.builder().shellCommand(...). cleanEnvironment defaults to false,
         so child processes inherit the JVM's environment. JevJudge.Builder has no rubric() method.
     """,
-    facts = listOf(                                        // what code can verify exactly
+    
+    facts = listOf(
         Fact.regex("version 0.13.0", "\\b0\\.13\\.0\\b"),
         Fact.literal("default shell /bin/bash", "/bin/bash"),
         Fact.member("shellCommand"),
         Fact.regex("cleanEnvironment", "\\bcleanEnvironment\\b"),
         Fact.regex("says rubric() does not exist", "does ?n[o']t (exist|have)|there is no|..."),
     ),
-    names = listOf(JEV_TYPES),                             // any other Jev* name is invented
-    trap = true,                                           // asks about an API that doesn't exist
-    pinnedVersions = listOf(PinnedVersion("org.springaicommunity", "spring-ai-agent-utils", "0.13.0")),
 )
 ```
-
-The agent sees only the `prompt`; the rest is for the judges.
 
 ---
 
 ## Arm: the system under test
 
 ```kotlin
-class Arm(val id: String, val client: () -> ChatClient.Builder, val tools: (ArmRun) -> List<ToolCallback> = { emptyList() })
-
 Arm("base", { agentClient.clone() })                                  // the model's memory only
 
 Arm("shell", { agentClient.clone() }, tools = { run ->                // curl, unzip, grep jars...
@@ -127,11 +98,25 @@ arm.client().build().prompt()
 
 ---
 
+## Three kinds of judge
+
+| Grader | Good at | Watch out for |
+|---|---|---|
+| **Code checks** | Exact facts: versions, coordinates, method names, "says X doesn't exist" | Brittle wording and typography |
+| **LLM as judge** | Meaning, completeness, explaining what's wrong | Cost, leniency, varies run to run |
+| **Typed judge model** ([Jev](https://typesafe.ai/)) | Many yes/no and score questions in one cheap, fast call, Parallel | Thresholds are a design decision |
+
+Combine them: code for what code can settle, a judge for the rest.
+
+---
+
+## What is Jev / System One / Decision Models?
+
+---
+
 ## Judge: grade the answer against the reference
 
 ```kotlin
-interface EvalJudge { fun judge(task: EvalTask, run: RunRecord, checks: CodeCheckResult): JudgeResult }
-
 // Code checks: regexes over the answer
 val (found, missing) = task.facts.partition { it.foundIn(answer) }
 
@@ -150,24 +135,6 @@ JevJudge.builder(typeSafeClient)
     .build()
     .judge(JevJudgeInput.builder().question(task.prompt).answer(answer).expected(task.reference).build())
 ```
-
----
-
-## Three kinds of judge
-
-| Grader | Good at | Watch out for |
-|---|---|---|
-| **Code checks** | Exact facts: versions, coordinates, method names, "says X doesn't exist" | Brittle wording and typography |
-| **LLM as judge** | Meaning, completeness, explaining what's wrong | Cost, leniency, varies run to run |
-| **Typed judge model** ([Jev](https://typesafe.ai/)) | Many yes/no and score questions in one cheap, fast call, Parallel | Thresholds are a design decision |
-
-Combine them: code for what code can settle, a judge for the rest.
-
----
-
-## What is Jev / System One / Decision Models?
-
-
 
 ---
 
@@ -196,7 +163,7 @@ Reference answers were checked against the published javadoc and sources jars.
 
 ---
 
-## Six arms, one model
+## Four arms, one model
 
 Same model (`gpt-oss-120b`, later `kimi-k2.5`, on Amazon Bedrock), same coding-assistant system prompt. Only the tools differ.
 
@@ -206,8 +173,6 @@ Same model (`gpt-oss-120b`, later `kimi-k2.5`, on Amazon Bedrock), same coding-a
 | `shell` | `Bash` + `TodoWrite` (spring-ai-agent-utils) |
 | `web-brave` | Brave search + WebFetch + shell |
 | `mcp` | The 8 javadocs.dev MCP tools, all offered up front |
-
-<span class="small">Also ready: `web-bedrock`, Bedrock's hosted web search, once the account has GPT‑5.x access.</span>
 
 ---
 
@@ -262,12 +227,6 @@ Agents trust "latest", so a wrong latest sends them to the wrong API. It also af
 **zio-mavencentral 0.14.1**
 - Maven version ordering (coursier `versions`), `isPreRelease`, `latest(includePreReleases)`
 - The website's `/latest` and badges: releases only
-
----
-
-## Did it help?
-
-???
 
 ---
 

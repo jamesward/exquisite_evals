@@ -1,3 +1,6 @@
+# Shiki syntax highlighting (see engine.mjs) instead of Marp's built-in highlight.js
+engine: ./engine.mjs
+allowLocalFiles: true
 options:
   markdown:
     html: true
