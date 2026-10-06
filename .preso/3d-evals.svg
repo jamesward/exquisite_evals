@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 830" width="820" height="830" font-family="Helvetica, Arial, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+<path d="M 0 0 L 10 5 L 0 10 z" fill="#1f6feb"/></marker></defs>
+<polygon points="330.0,70.0 524.0,170.8 330.0,271.6 136.0,170.8" fill="#f4f6f8" stroke="#9aa5b1" stroke-width="1.5" opacity="0.97"/>
+<polygon points="330.0,73.0 372.7,95.2 330.0,117.4 287.3,95.2" fill="hsl(0,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="281.5,98.2 324.2,120.4 281.5,142.6 238.8,120.4" fill="hsl(36,65%,56%)" stroke="white" stroke-width="1"/>
+<polygon points="233.0,123.4 275.7,145.6 233.0,167.8 190.3,145.6" fill="hsl(30,65%,56%)" stroke="white" stroke-width="1"/>
+<polygon points="184.5,148.6 227.2,170.8 184.5,193.0 141.8,170.8" fill="hsl(0,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="378.5,98.2 421.2,120.4 378.5,142.6 335.8,120.4" fill="hsl(0,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="330.0,123.4 372.7,145.6 330.0,167.8 287.3,145.6" fill="hsl(84,65%,52%)" stroke="white" stroke-width="1"/>
+<polygon points="281.5,148.6 324.2,170.8 281.5,193.0 238.8,170.8" fill="hsl(120,65%,50%)" stroke="white" stroke-width="1"/>
+<text x="281.5" y="176.8" font-size="19" text-anchor="middle" font-weight="bold" fill="white">✓</text>
+<polygon points="233.0,173.8 275.7,196.0 233.0,218.2 190.3,196.0" fill="hsl(0,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="427.0,123.4 469.7,145.6 427.0,167.8 384.3,145.6" fill="hsl(112,65%,51%)" stroke="white" stroke-width="1"/>
+<polygon points="378.5,148.6 421.2,170.8 378.5,193.0 335.8,170.8" fill="hsl(84,65%,52%)" stroke="white" stroke-width="1"/>
+<polygon points="330.0,173.8 372.7,196.0 330.0,218.2 287.3,196.0" fill="hsl(90,65%,52%)" stroke="white" stroke-width="1"/>
+<polygon points="281.5,199.0 324.2,221.2 281.5,243.4 238.8,221.2" fill="hsl(96,65%,52%)" stroke="white" stroke-width="1"/>
+<polygon points="475.5,148.6 518.2,170.8 475.5,193.0 432.8,170.8" fill="hsl(120,65%,50%)" stroke="#1f2933" stroke-width="3"/>
+<text x="475.5" y="176.8" font-size="19" text-anchor="middle" font-weight="bold" fill="white">✓</text>
+<polygon points="427.0,173.8 469.7,196.0 427.0,218.2 384.3,196.0" fill="hsl(108,65%,51%)" stroke="white" stroke-width="1"/>
+<polygon points="378.5,199.0 421.2,221.2 378.5,243.4 335.8,221.2" fill="hsl(30,65%,56%)" stroke="white" stroke-width="1"/>
+<polygon points="330.0,224.2 372.7,246.4 330.0,268.6 287.3,246.4" fill="hsl(120,65%,50%)" stroke="white" stroke-width="1"/>
+<text x="330.0" y="252.4" font-size="19" text-anchor="middle" font-weight="bold" fill="white">✓</text>
+<text x="542.0" y="172.8" font-size="21" text-anchor="start" font-weight="bold" fill="#333">Code checks</text>
+<text x="542.0" y="194.8" font-size="15" text-anchor="start" font-weight="normal" fill="#667">facts found</text>
+<polygon points="330.0,275.0 524.0,375.8 330.0,476.6 136.0,375.8" fill="#f4f6f8" stroke="#9aa5b1" stroke-width="1.5" opacity="0.97"/>
+<polygon points="330.0,278.0 372.7,300.2 330.0,322.4 287.3,300.2" fill="hsl(0,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="281.5,303.2 324.2,325.4 281.5,347.6 238.8,325.4" fill="hsl(0,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="233.0,328.4 275.7,350.6 233.0,372.8 190.3,350.6" fill="hsl(80,65%,53%)" stroke="white" stroke-width="1"/>
+<polygon points="184.5,353.6 227.2,375.8 184.5,398.0 141.8,375.8" fill="hsl(0,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="378.5,303.2 421.2,325.4 378.5,347.6 335.8,325.4" fill="hsl(0,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="330.0,328.4 372.7,350.6 330.0,372.8 287.3,350.6" fill="hsl(30,65%,56%)" stroke="white" stroke-width="1"/>
+<polygon points="281.5,353.6 324.2,375.8 281.5,398.0 238.8,375.8" fill="hsl(120,65%,50%)" stroke="white" stroke-width="1"/>
+<text x="281.5" y="381.8" font-size="19" text-anchor="middle" font-weight="bold" fill="white">✓</text>
+<polygon points="233.0,378.8 275.7,401.0 233.0,423.2 190.3,401.0" fill="hsl(0,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="427.0,328.4 469.7,350.6 427.0,372.8 384.3,350.6" fill="hsl(30,65%,56%)" stroke="white" stroke-width="1"/>
+<polygon points="378.5,353.6 421.2,375.8 378.5,398.0 335.8,375.8" fill="hsl(20,65%,57%)" stroke="white" stroke-width="1"/>
+<polygon points="330.0,378.8 372.7,401.0 330.0,423.2 287.3,401.0" fill="hsl(20,65%,57%)" stroke="white" stroke-width="1"/>
+<polygon points="281.5,404.0 324.2,426.2 281.5,448.4 238.8,426.2" fill="hsl(52,65%,54%)" stroke="white" stroke-width="1"/>
+<polygon points="475.5,353.6 518.2,375.8 475.5,398.0 432.8,375.8" fill="hsl(120,65%,50%)" stroke="#1f2933" stroke-width="3"/>
+<text x="475.5" y="381.8" font-size="19" text-anchor="middle" font-weight="bold" fill="white">✓</text>
+<polygon points="427.0,378.8 469.7,401.0 427.0,423.2 384.3,401.0" fill="hsl(120,65%,50%)" stroke="white" stroke-width="1"/>
+<polygon points="378.5,404.0 421.2,426.2 378.5,448.4 335.8,426.2" fill="hsl(0,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="330.0,429.2 372.7,451.4 330.0,473.6 287.3,451.4" fill="hsl(120,65%,50%)" stroke="white" stroke-width="1"/>
+<text x="330.0" y="457.4" font-size="19" text-anchor="middle" font-weight="bold" fill="white">✓</text>
+<text x="542.0" y="377.8" font-size="21" text-anchor="start" font-weight="bold" fill="#333">LLM judge</text>
+<text x="542.0" y="399.8" font-size="15" text-anchor="start" font-weight="normal" fill="#667">DeepSeek V3.2</text>
+<polygon points="330.0,480.0 524.0,580.8 330.0,681.6 136.0,580.8" fill="#f4f6f8" stroke="#9aa5b1" stroke-width="1.5" opacity="0.97"/>
+<polygon points="330.0,483.0 372.7,505.2 330.0,527.4 287.3,505.2" fill="hsl(3,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="281.5,508.2 324.2,530.4 281.5,552.6 238.8,530.4" fill="hsl(24,65%,56%)" stroke="white" stroke-width="1"/>
+<polygon points="233.0,533.4 275.7,555.6 233.0,577.8 190.3,555.6" fill="hsl(44,65%,55%)" stroke="white" stroke-width="1"/>
+<polygon points="184.5,558.6 227.2,580.8 184.5,603.0 141.8,580.8" fill="hsl(34,65%,56%)" stroke="white" stroke-width="1"/>
+<polygon points="378.5,508.2 421.2,530.4 378.5,552.6 335.8,530.4" fill="hsl(4,65%,58%)" stroke="white" stroke-width="1"/>
+<polygon points="330.0,533.4 372.7,555.6 330.0,577.8 287.3,555.6" fill="hsl(44,65%,55%)" stroke="white" stroke-width="1"/>
+<polygon points="281.5,558.6 324.2,580.8 281.5,603.0 238.8,580.8" fill="hsl(96,65%,52%)" stroke="white" stroke-width="1"/>
+<text x="281.5" y="586.8" font-size="19" text-anchor="middle" font-weight="bold" fill="white">✓</text>
+<polygon points="233.0,583.8 275.7,606.0 233.0,628.2 190.3,606.0" fill="hsl(21,65%,57%)" stroke="white" stroke-width="1"/>
+<polygon points="427.0,533.4 469.7,555.6 427.0,577.8 384.3,555.6" fill="hsl(68,65%,53%)" stroke="white" stroke-width="1"/>
+<polygon points="378.5,558.6 421.2,580.8 378.5,603.0 335.8,580.8" fill="hsl(36,65%,56%)" stroke="white" stroke-width="1"/>
+<polygon points="330.0,583.8 372.7,606.0 330.0,628.2 287.3,606.0" fill="hsl(42,65%,55%)" stroke="white" stroke-width="1"/>
+<polygon points="281.5,609.0 324.2,631.2 281.5,653.4 238.8,631.2" fill="hsl(83,65%,52%)" stroke="white" stroke-width="1"/>
+<polygon points="475.5,558.6 518.2,580.8 475.5,603.0 432.8,580.8" fill="hsl(110,65%,51%)" stroke="#1f2933" stroke-width="3"/>
+<text x="475.5" y="586.8" font-size="19" text-anchor="middle" font-weight="bold" fill="white">✓</text>
+<polygon points="427.0,583.8 469.7,606.0 427.0,628.2 384.3,606.0" fill="hsl(91,65%,52%)" stroke="white" stroke-width="1"/>
+<polygon points="378.5,609.0 421.2,631.2 378.5,653.4 335.8,631.2" fill="hsl(39,65%,55%)" stroke="white" stroke-width="1"/>
+<polygon points="330.0,634.2 372.7,656.4 330.0,678.6 287.3,656.4" fill="hsl(95,65%,52%)" stroke="white" stroke-width="1"/>
+<text x="330.0" y="662.4" font-size="19" text-anchor="middle" font-weight="bold" fill="white">✓</text>
+<text x="542.0" y="582.8" font-size="21" text-anchor="start" font-weight="bold" fill="#333">Jev</text>
+<text x="542.0" y="604.8" font-size="15" text-anchor="start" font-weight="normal" fill="#667">TypeSafe</text>
+<line x1="475.5" y1="196.0" x2="475.5" y2="350.6" stroke="#1f2933" stroke-width="2" stroke-dasharray="5,5"/>
+<line x1="475.5" y1="401.0" x2="475.5" y2="555.6" stroke="#1f2933" stroke-width="2" stroke-dasharray="5,5"/>
+<text x="154.3" y="605.4" font-size="16" text-anchor="end" font-weight="normal" fill="#333" transform="rotate(-27.5 154.3 605.4)">base</text>
+<text x="202.8" y="630.6" font-size="16" text-anchor="end" font-weight="normal" fill="#333" transform="rotate(-27.5 202.8 630.6)">shell</text>
+<text x="251.3" y="655.8" font-size="16" text-anchor="end" font-weight="normal" fill="#333" transform="rotate(-27.5 251.3 655.8)">web-brave</text>
+<text x="299.8" y="681.0" font-size="16" text-anchor="end" font-weight="normal" fill="#333" transform="rotate(-27.5 299.8 681.0)">mcp</text>
+<text x="505.7" y="605.4" font-size="16" text-anchor="start" font-weight="normal" fill="#333" transform="rotate(27.5 505.7 605.4)">jevjudge-gav</text>
+<text x="457.2" y="630.6" font-size="16" text-anchor="start" font-weight="normal" fill="#333" transform="rotate(27.5 457.2 630.6)">jackson3-ptv</text>
+<text x="408.7" y="655.8" font-size="16" text-anchor="start" font-weight="normal" fill="#333" transform="rotate(27.5 408.7 655.8)">spring-ai-hostedtool</text>
+<text x="360.2" y="681.0" font-size="16" text-anchor="start" font-weight="normal" fill="#333" transform="rotate(27.5 360.2 681.0)">agentutils-shell-trap</text>
+<text x="126.3" y="686.6" font-size="20" text-anchor="middle" font-weight="bold" fill="#1f6feb" transform="rotate(27.5 126.3 686.6)">Arm</text>
+<text x="616.1" y="729.5" font-size="20" text-anchor="middle" font-weight="bold" fill="#1f6feb" transform="rotate(-27.5 616.1 729.5)">Task</text>
+<line x1="106.0" y1="550.8" x2="106.0" y2="120.8" stroke="#1f6feb" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="96.0" y="335.8" font-size="20" text-anchor="middle" font-weight="bold" fill="#1f6feb" transform="rotate(-90.0 96.0 335.8)">Judge</text>
+<text x="120.0" y="775.0" font-size="14" text-anchor="end" font-weight="normal" fill="#667">score</text>
+<rect x="128" y="763" width="14" height="14" fill="hsl(0,65%,58%)"/>
+<rect x="142" y="763" width="14" height="14" fill="hsl(12,65%,57%)"/>
+<rect x="156" y="763" width="14" height="14" fill="hsl(24,65%,56%)"/>
+<rect x="170" y="763" width="14" height="14" fill="hsl(36,65%,56%)"/>
+<rect x="184" y="763" width="14" height="14" fill="hsl(48,65%,55%)"/>
+<rect x="198" y="763" width="14" height="14" fill="hsl(60,65%,54%)"/>
+<rect x="212" y="763" width="14" height="14" fill="hsl(72,65%,53%)"/>
+<rect x="226" y="763" width="14" height="14" fill="hsl(84,65%,52%)"/>
+<rect x="240" y="763" width="14" height="14" fill="hsl(96,65%,52%)"/>
+<rect x="254" y="763" width="14" height="14" fill="hsl(108,65%,51%)"/>
+<rect x="268" y="763" width="14" height="14" fill="hsl(120,65%,50%)"/>
+<text x="128.0" y="793.0" font-size="13" text-anchor="start" font-weight="normal" fill="#667">0</text>
+<text x="282.0" y="793.0" font-size="13" text-anchor="end" font-weight="normal" fill="#667">1</text>
+<text x="300.0" y="775.0" font-size="14" text-anchor="start" font-weight="normal" fill="#667">✓ pass</text>
+<text x="300.0" y="793.0" font-size="14" text-anchor="start" font-weight="normal" fill="#667">--- one answer, three verdicts</text>
+<text x="70.0" y="819.0" font-size="14" text-anchor="start" font-weight="normal" fill="#667">each cell: one judge's score for one answer · agent moonshotai.kimi-k2.5, run 20261005</text>
+</svg>

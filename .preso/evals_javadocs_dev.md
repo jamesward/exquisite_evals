@@ -22,20 +22,6 @@ Christian Tzolov - Spring AI Lead @ Broadcom & AAIF Ambassador
 
 ---
 
-## 3D Evals: Task, Arm, Judge
-
-for t in task:
-  for a in arm:
-    metrics
-
-
-    for j in judge:
-      metrics
-
-???
-
----
-
 ## What is an eval?
 
 A **test for a system whose output isn't deterministic**, like an AI agent.
@@ -45,7 +31,7 @@ A **test for a system whose output isn't deterministic**, like an AI agent.
 - **Grader**: code, another model, or a person decides pass or fail
 - **Meta Metrics**: accuracy, hallucinations, tokens (cost), time, tool calls
 
-Run the same tasks on each variant/arm, compare the numbers, change one thing, run again.
+Run the same tasks on each variant/arm, compare the numbers, change one thing, run again. Sample for consistency.
 
 <!--
 Unit tests assert an exact output. Evals assert properties of outputs that vary from run to run,
@@ -54,13 +40,120 @@ and they compare variants rather than just passing or failing one build.
 
 ---
 
-## Arm
+## 3D Evals: Task, Arm, Judge
 
-???
+![bg right:52% contain](3d-evals.svg)
+
+```python
+for task in tasks:        # 4: what to ask
+  for arm in arms:        # 4: which tools
+    run = agent(task, arm)
+    # tokens, time, tool calls
+
+    for judge in judges:  # 3: who grades
+      verdict = judge(task, run)
+      # pass/fail, score, why
+```
+
+4 × 4 × 3 = **48 verdicts** per trial
+
+Compare along any axis: arms on a task, tasks on an arm, judges on one answer
 
 ---
 
-## Judge
+## The process
+
+![w:1150](eval-process.svg)
+
+One **run** = every task × every arm, all judged. Keep every run to compare.
+
+---
+
+## Task: a question with a verified answer
+
+```kotlin
+val AGENT_UTILS_SHELL_TRAP = EvalTask(
+    id = "agentutils-shell-trap",
+    prompt = "In the latest spring-ai-agent-utils, what shell does LocalExecBackend run commands with by " +
+        "default on Linux, how do you override it, and do child processes inherit the JVM's environment " +
+        "by default? Also, how do I use JevJudge.Builder.rubric() from typesafe-spring-ai?",
+    reference = """
+        Latest spring-ai-agent-utils is 0.13.0. LocalExecBackend runs commands with /bin/bash -c on Linux;
+        override it with LocalExecBackend.builder().shellCommand(...). cleanEnvironment defaults to false,
+        so child processes inherit the JVM's environment. JevJudge.Builder has no rubric() method.
+    """,
+    facts = listOf(                                        // what code can verify exactly
+        Fact.regex("version 0.13.0", "\\b0\\.13\\.0\\b"),
+        Fact.literal("default shell /bin/bash", "/bin/bash"),
+        Fact.member("shellCommand"),
+        Fact.regex("cleanEnvironment", "\\bcleanEnvironment\\b"),
+        Fact.regex("says rubric() does not exist", "does ?n[o']t (exist|have)|there is no|..."),
+    ),
+    names = listOf(JEV_TYPES),                             // any other Jev* name is invented
+    trap = true,                                           // asks about an API that doesn't exist
+    pinnedVersions = listOf(PinnedVersion("org.springaicommunity", "spring-ai-agent-utils", "0.13.0")),
+)
+```
+
+The agent sees only the `prompt`; the rest is for the judges.
+
+---
+
+## Arm: the system under test
+
+```kotlin
+class Arm(val id: String, val client: () -> ChatClient.Builder, val tools: (ArmRun) -> List<ToolCallback> = { emptyList() })
+
+Arm("base", { agentClient.clone() })                                  // the model's memory only
+
+Arm("shell", { agentClient.clone() }, tools = { run ->                // curl, unzip, grep jars...
+    val sandbox = Sandboxes.docker("exquisite-evals-sandbox:1", run.workDir)   // ...in a container
+    ToolCallbacks.from(ShellTools.builder().execBackend(sandbox).build(), TodoWriteTool.builder().build()).toList()
+})
+
+Arm("mcp", { agentClient.clone() }, tools = { mcpTools() })           // the javadocs.dev MCP server
+```
+
+Every arm runs the same way: same model, same system prompt, same budget.
+
+```kotlin
+arm.client().build().prompt()
+    .system(systemPrompt)
+    .user(task.prompt)
+    .tools(*RunToolCalling.capped(arm.tools(run), budget.maxToolCalls).toTypedArray())
+    .advisors(ToolCallingAdvisor.builder().toolCallingManager(manager).build(), TokenTrackingAdvisor(tracker, budget))
+    .call().content()
+```
+
+---
+
+## Judge: grade the answer against the reference
+
+```kotlin
+interface EvalJudge { fun judge(task: EvalTask, run: RunRecord, checks: CodeCheckResult): JudgeResult }
+
+// Code checks: regexes over the answer
+val (found, missing) = task.facts.partition { it.foundIn(answer) }
+
+// LLM judge: one chat call that returns a JSON verdict
+judgeClient.build().prompt().user("""
+    QUESTION: ${task.prompt}   REFERENCE ANSWER: ${task.reference}   ASSISTANT ANSWER: $answer
+    Reply with JSON: factually_consistent, completeness (0-4), hallucinations[], trap_handled, rationale
+""").call().content()
+
+// Jev: typed questions answered in one call, plus the code checks as local criteria
+JevJudge.builder(typeSafeClient)
+    .noul("grounded", grounded, 0.6)                    // does every claim agree with the reference?
+    .score("completeness", completeness, 2.0)           // none / some / most / all of it
+    .check("required_facts", { checks.missing.isEmpty() }, "missing required facts: ${checks.missing}")
+    .criterion(JevCriterion.noul("trap_handled", trapHandled, 0.7))    // trap tasks only
+    .build()
+    .judge(JevJudgeInput.builder().question(task.prompt).answer(answer).expected(task.reference).build())
+```
+
+---
+
+## Three kinds of judge
 
 | Grader | Good at | Watch out for |
 |---|---|---|
@@ -297,4 +390,4 @@ Both judges fail an answer that fails the code checks, so their verdicts are com
 - Spring AI 2.1 reference: https://docs.spring.io/spring-ai/reference/2.1/
 - spring-ai-agent-utils: https://github.com/spring-ai-community/spring-ai-agent-utils
 - spring-ai-typesafe (JevJudge): https://github.com/spring-ai-community/spring-ai-typesafe
-- 
+- Preso & Code: https://github.com/jamesward/exquisite_evals
