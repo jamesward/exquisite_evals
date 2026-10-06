@@ -9,3 +9,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "npm"
+    directory: "/.preso"
+    schedule:
+      interval: "weekly"
