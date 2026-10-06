@@ -74,13 +74,14 @@ class TokenTracker(val label: String) {
 /**
  * Accumulates the usage of every model call it sees. Ordered just before the terminal model-call advisor
  * (which is at [Ordered.LOWEST_PRECEDENCE]; a tie would sort this advisor after it and it would never run),
- * so it sits innermost — inside the tool-calling loop — and runs once per model call.
+ * so it sits inside the tool-calling loop and runs once per model call. One slot is left for advisors that
+ * must see the final request, including the budget wrap-up (the Spring AI Inspector's, at LOWEST_PRECEDENCE - 1).
  */
 class TokenTrackingAdvisor(private val tracker: TokenTracker, private val budget: RunBudget? = null) : BaseAdvisor {
 
     private val log = LoggerFactory.getLogger(TokenTrackingAdvisor::class.java)
 
-    override fun getOrder(): Int = Ordered.LOWEST_PRECEDENCE - 1
+    override fun getOrder(): Int = Ordered.LOWEST_PRECEDENCE - 2
 
     override fun before(chatClientRequest: ChatClientRequest, advisorChain: AdvisorChain): ChatClientRequest {
         val request = budget?.let { enforce(it, repairToolCalls(chatClientRequest)) } ?: chatClientRequest

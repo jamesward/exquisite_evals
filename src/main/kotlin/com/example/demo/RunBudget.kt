@@ -1,5 +1,6 @@
 package com.example.demo
 
+import io.micrometer.observation.ObservationRegistry
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.model.ToolContext
 import org.springframework.ai.model.tool.DefaultToolCallingManager
@@ -43,10 +44,17 @@ object RunToolCalling {
      * The budgeted tool loop for one run. The tool-call cap is applied by [capped] to the arm's own tools,
      * not by Spring AI's `maxTotalToolCalls`: that also counts `toolSearchTool`, whose "limit exceeded"
      * text the tool-search advisor then fails to parse as a JSON list (a crashed run). Tool searches stay
-     * bounded by the model-call and input-token budgets.
+     * bounded by the model-call and input-token budgets. [observationRegistry] reports every tool execution
+     * (e.g. to the Spring AI Inspector).
      */
-    fun manager(budget: RunBudget, callbacks: () -> List<ToolCallback>, sink: MutableList<RecordedToolCall>): ToolCallingManager =
+    fun manager(
+        budget: RunBudget,
+        callbacks: () -> List<ToolCallback>,
+        sink: MutableList<RecordedToolCall>,
+        observationRegistry: ObservationRegistry = ObservationRegistry.NOOP,
+    ): ToolCallingManager =
         DefaultToolCallingManager.builder()
+            .observationRegistry(observationRegistry)
             .unlimitedTotalToolCalls()
             .unlimitedCallsPerTool()
             .resolutionFallbackEnabled(true)

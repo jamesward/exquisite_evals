@@ -106,7 +106,7 @@ class SpikeTest {
             ChatClient.create(model).prompt().user(versionQuestion).advisors(TokenTrackingAdvisor(tracker)).call().chatResponse()!!
         } catch (e: Exception) {
             val msg = generateSequence<Throwable>(e) { it.cause }.joinToString(" <- ") { "${it.javaClass.simpleName}: ${it.message}" }
-            if (msg.contains("access_denied") || msg.contains("not available for this account")) abort<Unit>("BLOCKED: $msg")
+            if (msg.contains("access_denied") || msg.contains("not available for this account") || msg.contains("aws-marketplace:Subscribe")) abort<Unit>("BLOCKED: $msg")
             throw e
         }
         val meta = response.result!!.metadata
@@ -140,7 +140,7 @@ class SpikeTest {
             .advisors(TokenTrackingAdvisor(tracker))
             .call().content()
         println("SPIKE4a answer=$answer toolCalls=${sink.map { it.name }} $tracker")
-        assertTrue(answer!!.contains("0.3.0"), answer)
+        assertTrue(answer!!.contains("0.4.0"), answer)
         assertTrue(sink.isNotEmpty())
         assertTrue(tracker.toolsOfferedPerTurn.first().size >= 5, "all MCP tools are offered up front")
     }
@@ -158,7 +158,7 @@ class SpikeTest {
             .advisors { it.param(ChatMemory.CONVERSATION_ID, "spike-4b-${System.nanoTime()}") }
             .call().content()
         println("SPIKE4b answer=$answer toolCalls=${sink.map { it.name }} $tracker perTurn=${tracker.toolsOfferedPerTurn}")
-        assertTrue(answer!!.contains("0.3.0"), answer)
+        assertTrue(answer!!.contains("0.4.0"), answer)
         assertEquals(1, tracker.toolsOfferedPerTurn.first().size, "only toolSearchTool is offered on turn 1")
         assertTrue(sink.isNotEmpty(), "a discovered MCP tool was executed")
     }
@@ -216,7 +216,7 @@ class SpikeTest {
             .call().content()
         println("SPIKE6 answer=$answer calls=${sink.map { it.name + ":" + it.arguments.take(120) }} $tracker | $fetchOverhead")
         assertTrue(sink.any { it.name == "WebSearch" }, "WebSearch was not called")
-        assertTrue(answer!!.contains("0.3.0"), answer)
+        assertTrue(answer!!.contains("0.4.0"), answer)
     }
 
     /**

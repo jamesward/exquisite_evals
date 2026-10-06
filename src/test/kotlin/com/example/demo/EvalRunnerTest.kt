@@ -1,5 +1,6 @@
 package com.example.demo
 
+import org.springaicommunity.typesafe.TypeSafeClient
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.MessageType
@@ -38,7 +39,9 @@ class EvalRunnerTest {
             Triple(200, "{\"embeddings\": [" + List(n) { "[1.0, 0.0]" }.joinToString() + "]}", 3)
         })
     }
-    private val catalog = ArmCatalog(EvalProperties(), ChatClient.builder(model), { listOf(fakeMcpTool) }, bedrockApiKey = "k", embeddings = fakeEmbeddings)
+    // the Jev index only calls TypeSafe when the model searches, which the fake model never does
+    private val catalog = ArmCatalog(EvalProperties(), ChatClient.builder(model), { listOf(fakeMcpTool) }, bedrockApiKey = "k", embeddings = fakeEmbeddings,
+        typeSafeClient = TypeSafeClient.builder().apiKey("k").build())
     private val runner = EvalRunner(catalog, emptyList(), outputRoot = Files.createTempDirectory("evals-test"))
 
     private fun toolNames(p: Prompt) = (p.options as? ToolCallingChatOptions)?.toolCallbacks?.map { it.toolDefinition.name() }.orEmpty()
@@ -65,6 +68,7 @@ class EvalRunnerTest {
         assertEquals(listOf("get_latest_version"), offered("mcp"))
         assertEquals(listOf("toolSearchTool"), offered("mcp-toolsearch"))
         assertEquals(listOf("toolSearchTool"), offered("mcp-toolsearch-vector"))
+        assertEquals(listOf("toolSearchTool"), offered("mcp-toolsearch-jev"))
         assertTrue(offered("shell").containsAll(listOf("Bash", "TodoWrite")))
     }
 }

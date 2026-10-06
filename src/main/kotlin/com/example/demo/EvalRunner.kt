@@ -1,5 +1,6 @@
 package com.example.demo
 
+import io.micrometer.observation.ObservationRegistry
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.memory.ChatMemory
 import tools.jackson.databind.SerializationFeature
@@ -57,6 +58,8 @@ class EvalRunner(
     /** Appended to the run directory name, e.g. `post-mcp-changes`. */
     private val label: String = "",
     private val models: RunModels = RunModels(),
+    /** Receives the tool-execution observations (the Spring AI Inspector registers a handler on it). */
+    private val observationRegistry: ObservationRegistry = ObservationRegistry.NOOP,
 ) {
     private val log = LoggerFactory.getLogger(EvalRunner::class.java)
 
@@ -99,7 +102,7 @@ class EvalRunner(
         val (answer, error) = try {
             val tools = RunToolCalling.capped(arm.tools(run), budget.maxToolCalls)
             val advisors = buildList {
-                if (tools.isNotEmpty()) add(arm.toolAdvisor(run, RunToolCalling.manager(budget, { tools }, run.toolCalls)))
+                if (tools.isNotEmpty()) add(arm.toolAdvisor(run, RunToolCalling.manager(budget, { tools }, run.toolCalls, observationRegistry)))
                 add(TokenTrackingAdvisor(tracker, budget))
             }
             var spec = arm.client().build().prompt().system(systemPrompt).user(task.prompt)

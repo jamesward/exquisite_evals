@@ -3,6 +3,8 @@ package com.example.demo
 import org.springaicommunity.agent.exec.LocalExecBackend
 import org.springaicommunity.agent.tools.ShellTools
 import org.springaicommunity.agent.tools.TodoWriteTool
+import org.springaicommunity.typesafe.TypeSafeClient
+import org.springaicommunity.typesafe.toolsearch.JevToolIndex
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor
 import org.springframework.ai.chat.client.advisor.api.Advisor
@@ -97,10 +99,12 @@ class ArmCatalog(
     private val embeddings: (TokenTracker) -> EmbeddingModel = { tracker ->
         BedrockCohereEmbeddingModel(bedrockApiKey.orEmpty(), props.embedding.model, props.embedding.baseUrl, tracker)
     },
+    /** TypeSafe client for the mcp-toolsearch-jev arm; the arm exists only when this is set. */
+    private val typeSafeClient: TypeSafeClient? = null,
 ) {
 
     val arms: List<Arm> by lazy {
-        listOfNotNull(base(), shell(), webBrave(), webBedrock(), mcp(), mcpToolSearch(), mcpToolSearchVector())
+        listOfNotNull(base(), shell(), webBrave(), webBedrock(), mcp(), mcpToolSearch(), mcpToolSearchVector(), mcpToolSearchJev())
     }
 
     fun arm(id: String): Arm = arms.firstOrNull { it.id == id }
@@ -110,6 +114,7 @@ class ArmCatalog(
     fun disabled(): Map<String, String> = buildMap {
         if (props.braveApiKey.isNullOrBlank()) put("web-brave", "set BRAVE_API_KEY (evals.brave-api-key)")
         if (props.bedrockWebSearch.model.isNullOrBlank()) put("web-bedrock", "set evals.bedrock-web-search.model to a GPT-5.x model your account can use")
+        if (typeSafeClient == null) put("mcp-toolsearch-jev", "set TYPESAFE_API_KEY (spring.ai.typesafe.api-key)")
     }
 
     private fun base() = Arm("base", "no tools: parametric knowledge only", { agentClient.clone() })
@@ -155,6 +160,25 @@ class ArmCatalog(
             val store = SimpleVectorStore.builder(embeddings(run.overhead)).build()
             ToolSearchToolCallingAdvisor.builder().toolCallingManager(m).toolIndex(VectorToolIndex(store)).maxResults(5).build()
         })
+
+    /**
+     * Same, but TypeSafe's Jev picks the tools: one call per search judges which tools perform the requested task.
+     * Unlike Lucene and the vector store, it can also answer "no tool applies". Its calls aren't counted as
+     * in-tool tokens: JevToolIndex doesn't expose their usage.
+     */
+    private fun mcpToolSearchJev(): Arm? {
+        val client = typeSafeClient ?: return null
+        return Arm("mcp-toolsearch-jev", "javadocs.dev MCP tools behind ToolSearchToolCallingAdvisor (TypeSafe Jev picks the tools)",
+            { agentClient.clone() },
+            tools = { run -> mcpTools().map { LoggingToolCallback(it, run.toolCalls) } },
+            toolAdvisor = { _, m ->
+                val index = JevToolIndex.builder(client)
+                    .applicabilityThreshold(0.5) // below this, no tool is returned at all
+                    .minimumRelevance(0.05) // don't pad maxResults with tools Jev ruled out
+                    .build()
+                ToolSearchToolCallingAdvisor.builder().toolCallingManager(m).toolIndex(index).maxResults(5).build()
+            })
+    }
 
     private fun shellAndTodo(run: ArmRun): List<ToolCallback> {
         val backend = when (props.sandbox.mode) {

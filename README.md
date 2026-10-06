@@ -109,6 +109,7 @@ exist. Only the tools differ.
 | `mcp` | the [javadocs.dev](https://www.javadocs.dev/mcp) MCP tools, all offered up front | always |
 | `mcp-toolsearch` | the same MCP tools behind Spring AI's `ToolSearchToolCallingAdvisor`, which shows the model tools only as it searches for them (keyword search: in-process Lucene index) | always |
 | `mcp-toolsearch-vector` | the same, with semantic search: `VectorToolIndex` over an in-memory `SimpleVectorStore`, embedding tool descriptions and queries with Cohere Embed v3 (`cohere.embed-english-v3`) on the Bedrock runtime | always |
+| `mcp-toolsearch-jev` | the same, with TypeSafe's `JevToolIndex` from typesafe-spring-ai: one Jev call per search judges which tools perform the requested task, and can return none (applicability threshold 0.5, minimum relevance 0.05). Its calls aren't counted as in-tool tokens, since the index doesn't expose their usage | `TYPESAFE_API_KEY` set |
 
 ## Tasks
 
@@ -130,7 +131,7 @@ update the pin in `Tasks.kt`.
 Setup:
 
 1. [Create a Bedrock API key](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/api-keys/long-term/create) and `export AWS_BEARER_TOKEN_BEDROCK=...`
-2. `export TYPESAFE_API_KEY=...` for the Jev judge.
+2. `export TYPESAFE_API_KEY=...` for the Jev judge and the `mcp-toolsearch-jev` arm.
 3. Optional: `export BRAVE_API_KEY=...` for `web-brave`, and `export BEDROCK_WEB_SEARCH_MODEL=openai.gpt-5.6-terra` for `web-bedrock`.
 4. Build the shell sandbox image (needs Docker): `docker build -t exquisite-evals-sandbox:1 sandbox`
 
@@ -188,6 +189,25 @@ Tests:
 - `./gradlew test -Plive --tests '*SpikeTest*'` runs live checks of each building block.
 - `./gradlew test -Plive --tests '*ReferenceFreshness*'` checks the reference answers are still current.
 - `./gradlew test -Plive --tests '*SandboxLiveTest*'` checks the sandbox: tools present, network up, no host keys or files, container removed.
+
+### Watching a run in the Spring AI Inspector
+
+The Spring AI Inspector (in the voxxeddays2026-demo repository, `spring-ai-inspector`) shows each call live: the prompt
+the app sent, the prompt after the advisors (including the budget's wrap-up message), every HTTP round-trip to
+Bedrock mantle and TypeSafe (Jev's questions and answers, also for the `mcp-toolsearch-jev` index), and every tool
+execution. Build with `-Pinspector` to add its starter; without that flag nothing changes.
+
+```
+(cd ../voxxeddays2026-demo/spring-ai-inspector && mvn install)                 # once: the starter, into ~/.m2
+java -jar ../voxxeddays2026-demo/spring-ai-inspector/spring-ai-inspector-server/target/spring-ai-inspector-server-*.jar
+open http://localhost:9001
+./gradlew bootRun -Pinspector -PevalTasks=jevjudge-gav -PevalArms=mcp,mcp-toolsearch-jev
+```
+
+`spring.ai.inspector.route.openai=always` (in `application.properties`) sends the mantle traffic of the agent and
+the LLM judge through the inspector's proxy. The whole eval JVM is one inspector run, and the inspector keeps every
+request and response body in memory, so narrow the run to a few tasks and arms. Use **Export** and **▶ Replay** to
+show a recorded run without calling a model.
 
 ## Judges
 
