@@ -25,7 +25,7 @@ dependencies {
     implementation("org.springaicommunity:spring-ai-starter-typesafe:0.3.0")
     implementation("org.springaicommunity:typesafe-spring-ai:0.3.0")
     // Maven's version ordering, for ReferenceFreshness (plexus-utils is only needed by classes we don't use)
-    implementation("org.apache.maven:maven-artifact:3.9.16") { exclude(group = "org.codehaus.plexus", module = "plexus-utils") }
+    implementation("org.apache.maven:maven-artifact:3.10.0") { exclude(group = "org.codehaus.plexus", module = "plexus-utils") }
     // -Pinspector: show the runs in a running Spring AI Inspector (it stays inactive when none is reachable)
     if (project.hasProperty("inspector")) implementation("org.springaicommunity:spring-ai-inspector-starter:0.0.1-SNAPSHOT")
 
