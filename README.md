@@ -190,6 +190,25 @@ Tests:
 - `./gradlew test -Plive --tests '*ReferenceFreshness*'` checks the reference answers are still current.
 - `./gradlew test -Plive --tests '*SandboxLiveTest*'` checks the sandbox: tools present, network up, no host keys or files, container removed.
 
+### Watching a run in the Spring AI Inspector
+
+The Spring AI Inspector (in the voxxeddays2026-demo repository, `spring-ai-inspector`) shows each call live: the prompt
+the app sent, the prompt after the advisors (including the budget's wrap-up message), every HTTP round-trip to
+Bedrock mantle and TypeSafe (Jev's questions and answers, also for the `mcp-toolsearch-jev` index), and every tool
+execution. Build with `-Pinspector` to add its starter; without that flag nothing changes.
+
+```
+(cd ../voxxeddays2026-demo/spring-ai-inspector && mvn install)                 # once: the starter, into ~/.m2
+java -jar ../voxxeddays2026-demo/spring-ai-inspector/spring-ai-inspector-server/target/spring-ai-inspector-server-*.jar
+open http://localhost:9001
+./gradlew bootRun -Pinspector -PevalTasks=jevjudge-gav -PevalArms=mcp,mcp-toolsearch-jev
+```
+
+`spring.ai.inspector.route.openai=always` (in `application.properties`) sends the mantle traffic of the agent and
+the LLM judge through the inspector's proxy. The whole eval JVM is one inspector run, and the inspector keeps every
+request and response body in memory, so narrow the run to a few tasks and arms. Use **Export** and **▶ Replay** to
+show a recorded run without calling a model.
+
 ## Judges
 
 | Judge | How it grades | Pass when |

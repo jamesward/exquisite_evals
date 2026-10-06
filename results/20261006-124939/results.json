@@ -1,0 +1,113 @@
+[ {
+  "run" : {
+    "task" : "jevjudge-gav",
+    "arm" : "mcp",
+    "answer" : null,
+    "error" : "UnauthorizedException: 401: The security token included in the request is expired",
+    "durationMs" : 1272,
+    "modelCalls" : 0,
+    "inputTokens" : 0,
+    "outputTokens" : 0,
+    "overheadInputTokens" : 0,
+    "overheadOutputTokens" : 0,
+    "toolCalls" : [ ],
+    "hostedToolCalls" : 0,
+    "toolsOfferedPerTurn" : [ 8 ],
+    "wrapUp" : null,
+    "inputTokensPerTurn" : [ ],
+    "toolSearches" : [ ],
+    "totalTokens" : 0
+  },
+  "checks" : {
+    "found" : [ ],
+    "missing" : [ "groupId", "artifactId", "version 0.4.0", "default minConfidence 0.6", "noul", "score", "choice", "check", "criterion", "minConfidence", "failOnInconclusive", "failOnError", "failFast", "feedbackRenderer", "build" ],
+    "hallucinatedNames" : [ ],
+    "factScore" : 0.0,
+    "passed" : false
+  },
+  "judges" : [ {
+    "judge" : "llm",
+    "passed" : false,
+    "score" : 0.0,
+    "criteria" : { },
+    "rationale" : "",
+    "inputTokens" : 0,
+    "outputTokens" : 0,
+    "durationMs" : 180,
+    "error" : "401: The security token included in the request is expired"
+  }, {
+    "judge" : "jev",
+    "passed" : false,
+    "score" : 0.465,
+    "criteria" : {
+      "grounded" : "PASSED",
+      "completeness" : "FAILED",
+      "required_facts" : "FAILED",
+      "no_invented_names" : "PASSED",
+      "grounded.value" : "0.93",
+      "completeness.value" : "0.00",
+      "semantic_pass" : false
+    },
+    "rationale" : "- completeness: rated \"None of it\" (0.00), needs to reach 2.00 which is \"Most of it\"\n- required_facts: missing required facts: [groupId, artifactId, version 0.4.0, default minConfidence 0.6, noul, score, choice, check, criterion, minConfidence, failOnInconclusive, failOnError, failFast, feedbackRenderer, build]",
+    "inputTokens" : 774,
+    "outputTokens" : 39,
+    "durationMs" : 520,
+    "error" : null
+  } ]
+}, {
+  "run" : {
+    "task" : "jevjudge-gav",
+    "arm" : "mcp-toolsearch-jev",
+    "answer" : null,
+    "error" : "UnauthorizedException: 401: The security token included in the request is expired",
+    "durationMs" : 368,
+    "modelCalls" : 0,
+    "inputTokens" : 0,
+    "outputTokens" : 0,
+    "overheadInputTokens" : 0,
+    "overheadOutputTokens" : 0,
+    "toolCalls" : [ ],
+    "hostedToolCalls" : 0,
+    "toolsOfferedPerTurn" : [ 1 ],
+    "wrapUp" : null,
+    "inputTokensPerTurn" : [ ],
+    "toolSearches" : [ ],
+    "totalTokens" : 0
+  },
+  "checks" : {
+    "found" : [ ],
+    "missing" : [ "groupId", "artifactId", "version 0.4.0", "default minConfidence 0.6", "noul", "score", "choice", "check", "criterion", "minConfidence", "failOnInconclusive", "failOnError", "failFast", "feedbackRenderer", "build" ],
+    "hallucinatedNames" : [ ],
+    "factScore" : 0.0,
+    "passed" : false
+  },
+  "judges" : [ {
+    "judge" : "llm",
+    "passed" : false,
+    "score" : 0.0,
+    "criteria" : { },
+    "rationale" : "",
+    "inputTokens" : 0,
+    "outputTokens" : 0,
+    "durationMs" : 187,
+    "error" : "401: The security token included in the request is expired"
+  }, {
+    "judge" : "jev",
+    "passed" : false,
+    "score" : 0.465,
+    "criteria" : {
+      "grounded" : "PASSED",
+      "completeness" : "FAILED",
+      "required_facts" : "FAILED",
+      "no_invented_names" : "PASSED",
+      "grounded.value" : "0.93",
+      "completeness.value" : "0.00",
+      "semantic_pass" : false
+    },
+    "rationale" : "- completeness: rated \"None of it\" (0.00), needs to reach 2.00 which is \"Most of it\"\n- required_facts: missing required facts: [groupId, artifactId, version 0.4.0, default minConfidence 0.6, noul, score, choice, check, criterion, minConfidence, failOnInconclusive, failOnError, failFast, feedbackRenderer, build]",
+    "inputTokens" : 774,
+    "outputTokens" : 39,
+    "durationMs" : 300,
+    "error" : null
+  } ]
+} ]
