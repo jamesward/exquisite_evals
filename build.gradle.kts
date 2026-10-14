@@ -22,8 +22,8 @@ dependencies {
     // Runs the shell arms' commands in a Docker container instead of on the host
     implementation("org.springaicommunity:spring-ai-agent-utils-docker-cli:0.12.0")
     // JevJudge + auto-configured TypeSafeClient
-    implementation("org.springaicommunity:spring-ai-starter-typesafe:0.3.0")
-    implementation("org.springaicommunity:typesafe-spring-ai:0.3.0")
+    implementation("org.springaicommunity:spring-ai-starter-typesafe:0.4.0")
+    implementation("org.springaicommunity:typesafe-spring-ai:0.4.0")
     // Maven's version ordering, for ReferenceFreshness (plexus-utils is only needed by classes we don't use)
     implementation("org.apache.maven:maven-artifact:3.9.16") { exclude(group = "org.codehaus.plexus", module = "plexus-utils") }
     // -Pinspector: show the runs in a running Spring AI Inspector (it stays inactive when none is reachable)
