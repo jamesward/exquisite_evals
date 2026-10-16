@@ -12,7 +12,8 @@ Follow the `zen-of-projects` Skill; this file records only project facts and exc
 
 ## Build, test & dev
 
-- Full validation (what CI runs): `./gradlew build`. It excludes the `live` tests.
+- Full validation (what CI runs): `docker build -t exquisite-evals-sandbox:1 sandbox && ./gradlew build`. It excludes the `live` tests.
+- **Docker:** the tests need Docker and the sandbox image (`EvalRunnerTest` runs the `shell` arm, which starts a container from `exquisite-evals-sandbox:1`). Start Docker as zen-of-projects "Docker for tests" says, then build the image. When `sandbox/Dockerfile` changes, bump the image tag here, in CI and in the code together.
 - **Paid tests:** tests tagged `live` call Amazon Bedrock, javadocs.dev and TypeSafe and cost money; they only run with `-Plive`. Never run them in the maintenance routine.
 - **Running the evals** (`./gradlew bootRun ...`) calls paid models and needs AWS credentials and Docker for the shell sandbox (`sandbox/Dockerfile`). Manual only; never in the maintenance routine.
 - `results/` holds recorded eval runs; don't edit or regenerate them.
