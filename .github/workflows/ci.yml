@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
           cache: gradle
       # EvalRunnerTest runs the shell arm, which starts a container from this image
       - run: docker build -t exquisite-evals-sandbox:1 sandbox

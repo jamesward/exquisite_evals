@@ -167,7 +167,7 @@ host's environment is passed in, so the commands can't read the API keys. The ne
 to reach Maven Central. `EVALS_SANDBOX=local` runs commands on the host instead (with only `PATH` and `HOME` from its
 environment).
 
-Run (needs Java 21+):
+Run (needs Java 25+):
 
 ```
 ./gradlew bootRun                                                          # every task x every enabled arm
