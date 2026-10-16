@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.4.20"
-    kotlin("plugin.spring") version "2.4.20"
+    kotlin("jvm") version "2.4.21"
+    kotlin("plugin.spring") version "2.4.21"
     id("org.springframework.boot") version "4.2.0-M2"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.skillsjars.gradle-plugin") version "0.2.0"
@@ -19,14 +19,14 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-vector-store")
 
     // ShellTools / SmartWebFetchTool (built against Spring AI 2.0.1; verified on 2.1.0-M1 by the spike)
-    implementation("org.springaicommunity:spring-ai-agent-utils:0.12.0")
+    implementation("org.springaicommunity:spring-ai-agent-utils:0.13.0")
     // Runs the shell arms' commands in a Docker container instead of on the host
-    implementation("org.springaicommunity:spring-ai-agent-utils-docker-cli:0.12.0")
+    implementation("org.springaicommunity:spring-ai-agent-utils-docker-cli:0.13.0")
     // JevJudge + auto-configured TypeSafeClient
-    implementation("org.springaicommunity:spring-ai-starter-typesafe:0.3.0")
-    implementation("org.springaicommunity:typesafe-spring-ai:0.3.0")
+    implementation("org.springaicommunity:spring-ai-starter-typesafe:0.4.0")
+    implementation("org.springaicommunity:typesafe-spring-ai:0.4.0")
     // Maven's version ordering, for ReferenceFreshness (plexus-utils is only needed by classes we don't use)
-    implementation("org.apache.maven:maven-artifact:3.9.16") { exclude(group = "org.codehaus.plexus", module = "plexus-utils") }
+    implementation("org.apache.maven:maven-artifact:3.10.0") { exclude(group = "org.codehaus.plexus", module = "plexus-utils") }
     // -Pinspector: show the runs in a running Spring AI Inspector (it stays inactive when none is reachable)
     if (project.hasProperty("inspector")) implementation("org.springaicommunity:spring-ai-inspector-starter:0.0.1-SNAPSHOT")
 
