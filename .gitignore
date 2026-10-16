@@ -39,3 +39,6 @@ out/
 ### Kotlin ###
 .kotlin
 /_site/
+
+# Agent Skills extracted by the build
+/.kiro/skills/

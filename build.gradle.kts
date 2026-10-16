@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.spring") version "2.4.20"
     id("org.springframework.boot") version "4.2.0-M2"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.skillsjars.gradle-plugin") version "0.2.0"
 }
 
 kotlin {
@@ -29,9 +30,16 @@ dependencies {
     // -Pinspector: show the runs in a running Spring AI Inspector (it stays inactive when none is reachable)
     if (project.hasProperty("inspector")) implementation("org.springaicommunity:spring-ai-inspector-starter:0.0.1-SNAPSHOT")
 
+    // Agent Skills, extracted with ./gradlew extractSkillsJars
+    skill("com.jamesward:skills:0.0.15")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+skillsjars {
+    outputDir.set(layout.projectDirectory.dir(".kiro/skills"))
 }
 
 tasks.withType<Test> {
