@@ -5,7 +5,13 @@ If there are other open PRs for this work, update that PR instead of creating a 
 The run isn't finished until the Maintenance Routine's step 8 ("Improve the factory") is done:
 every finding it lists needs a link to the PR or issue you opened or updated for it in another
 repo (`jamesward/skills`, `jamesward/projects`, or a managed tool's repo), attached with `add_repo`.
-"Not filed" isn't an allowed outcome; if filing fails, quote the error. Do it before merging.
+"Not filed" isn't an allowed outcome; if filing fails, quote the error. Do it before merging. A
+filing failure doesn't block the merge: quote it in the report and merge as step 7 says.
+
+Merging the rolling PR doesn't end the run either: unless the run stopped, step 9 ("Work on open
+issues") comes next, also when the rolling PR had no changes. The final report needs an "Issues"
+line: each issue you worked on with its PR or comment, or "none eligible" with why (no open issues,
+or each one's reason for being skipped).
 
 Whenever a step says to stop, or the run can't finish: revert your uncommitted edits
 (`git checkout -- .`), don't push a branch or open a PR, and end with a report that quotes what
@@ -42,8 +48,8 @@ reply is the report.
    to the version it prints.
 2. Extract the Skills to `.kiro/skills/`:
    - sbt: `extractSkillsJars` through the `sbta` server's `sbt-task` tool, or
-     `./sbta extractSkillsJars`. After `build.sbt` changes, sbt reloads; if the next call reports a
-     lost connection, run it again.
+     `./sbta extractSkillsJars`. Run `reload` first after editing the pin, or it extracts the old
+     version; check the version in its output. If a call reports a lost connection, run it again.
    - Maven: `./mvnw -q skillsjars:extract`
    - Gradle: `./gradlew extractSkillsJars`
 
@@ -54,7 +60,7 @@ reply is the report.
    for a version released in the last day usually means the same thing: the mirror doesn't have it
    yet, so the build fell back to Maven Central (check with `curl -s -o /dev/null -w '%{http_code}'
    https://maven-central.storage-download.googleapis.com/maven2/<path>`; 404 means not mirrored). Pin
-   the newest version the mirror has and continue. For any other download error (for example a 429
+   the newest version the mirror has and continue, unless the repo's code already needs the unmirrored version (the build at the default branch pins it and fails to compile against the older one): then the bump can't be validated, so follow the stop rule at the top and report which artifact was missing. For any other download error (for example a 429
    for an older artifact, or a proxy 403), stop and report it instead of changing resolvers.
 3. Read `.kiro/skills/*zen-of-projects*/SKILL.md` and follow its "Maintenance Routine" section, using
    `AGENTS.md` for this project's commands and documented exceptions. While an unreleased version of
