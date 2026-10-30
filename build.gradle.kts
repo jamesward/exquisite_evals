@@ -31,7 +31,7 @@ dependencies {
     if (project.hasProperty("inspector")) implementation("org.springaicommunity:spring-ai-inspector-starter:0.0.1-SNAPSHOT")
 
     // Agent Skills, extracted with ./gradlew extractSkillsJars
-    skill("com.jamesward:skills:0.0.17")
+    skill("com.jamesward:skills:0.0.21")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
