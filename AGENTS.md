@@ -24,5 +24,5 @@ Follow the `zen-of-projects` Skill; this file records only project facts and exc
 
 ## Exceptions to zen-of-projects
 
-- **Prereleases on purpose:** the demo targets Spring AI `2.1.0-M1` (with Spring Boot `4.2.0-M2`), because the evaluated tasks and arms use APIs that only exist on that line (for example `spring-ai-hostedtool`). Move to newer milestones or RCs of the same line, and to the 2.1 GA once it's out; don't move back to 2.0.x. Treat a Spring AI or Spring Boot bump as needing a human (`needs-human`) if it changes eval behavior or the recorded results' assumptions.
+- **Prereleases on purpose:** the demo targets Spring AI `2.1.0-M1` (with Spring Boot `4.2.0-M2`), because the evaluated tasks and arms use APIs that only exist on that line (for example `spring-ai-hostedtool`). Move to newer milestones or RCs of the same line, and to the 2.1 GA once it's out; don't move back to 2.0.x. These bumps merge like any other once `./gradlew build` and CI pass. Use `needs-human` only when the bump needs changes to the eval tasks, arms or graders (not just API migrations) to compile or pass; the recorded runs in `results/` are history and don't need to match the new versions.
 - **Optional `-Pinspector`** dependency is a local `0.0.1-SNAPSHOT` (`mavenLocal`, only with that flag); leave it.
